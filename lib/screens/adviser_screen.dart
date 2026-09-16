@@ -9,8 +9,9 @@ import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
-/// An adviser to the Prime Minister appointed from outside parliament: who they
-/// are, what they are responsible for, and where that account comes from.
+/// A cabinet member from outside parliament, an adviser or a technocrat
+/// minister: who they are, what they are responsible for, and where that
+/// account comes from.
 class AdviserScreen extends StatefulWidget {
   final String slug;
   final String nameBn;
@@ -28,13 +29,16 @@ class _AdviserScreenState extends State<AdviserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('প্রধানমন্ত্রীর উপদেষ্টা'),
+        title: FutureBuilder<AdviserDetail>(
+          future: _future,
+          builder: (context, snap) => Text(snap.data?.roleBn ?? 'মন্ত্রিসভা'),
+        ),
         actions: [
           IconButton(
             tooltip: 'শেয়ার',
             icon: const Icon(Icons.share_outlined),
             onPressed: () => SharePlus.instance.share(
-              ShareParams(text: '${widget.nameBn}\n${Api.base}/upodeshta/${widget.slug}', subject: widget.nameBn),
+              ShareParams(text: '${widget.nameBn}\n${Api.base}/ministers/${widget.slug}', subject: widget.nameBn),
             ),
           ),
         ],

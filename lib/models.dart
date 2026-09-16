@@ -261,10 +261,12 @@ class AdviserPost {
       AdviserPost(title: j['title'] as String? ?? '', ministryBn: _s(j['ministryBn']), fromDate: _s(j['fromDate']));
 }
 
-/// An adviser to the Prime Minister who is not a member of parliament.
+/// A cabinet member from outside parliament: an adviser to the Prime Minister,
+/// or a technocrat minister.
 class AdviserDetail {
   final String slug;
   final String nameBn;
+  final String roleBn;
   final String? rankBn;
   final String bioBn;
   final String? professionBn;
@@ -278,6 +280,7 @@ class AdviserDetail {
   const AdviserDetail({
     required this.slug,
     required this.nameBn,
+    required this.roleBn,
     this.rankBn,
     required this.bioBn,
     this.professionBn,
@@ -292,6 +295,7 @@ class AdviserDetail {
   factory AdviserDetail.fromJson(Map<String, dynamic> j) => AdviserDetail(
         slug: j['slug'] as String? ?? '',
         nameBn: j['nameBn'] as String? ?? '',
+        roleBn: j['roleBn'] as String? ?? 'প্রধানমন্ত্রীর উপদেষ্টা',
         rankBn: _s(j['rankBn']),
         bioBn: j['bioBn'] as String? ?? '',
         professionBn: _s(j['professionBn']),
