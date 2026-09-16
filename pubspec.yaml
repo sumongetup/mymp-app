@@ -1,0 +1,55 @@
+name: mymp
+description: "আমার এমপি — বাংলাদেশের সংসদ সদস্যদের তথ্য, হাতের মুঠোয়।"
+publish_to: 'none'
+
+# versionName+versionCode. Raise the build number for every upload to Play.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Deliberately few, and none that collect anything: the Play data-safety
+  # answer is "no data collected", and it should stay true by construction.
+  http: ^1.5.0
+  shared_preferences: ^2.5.3
+  cached_network_image: ^3.4.1
+  url_launcher: ^6.3.2
+  share_plus: ^12.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    # Bundled, not fetched: the app opens on a bus with no signal, and a
+    # Bengali face that arrived late would reflow every screen.
+    - family: NotoSansBengali
+      fonts:
+        - asset: assets/fonts/NotoSansBengali-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansBengali-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansBengali-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansBengali-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#0f6a4b"
+  adaptive_icon_foreground: "assets/images/logo.png"
+  remove_alpha_ios: true
