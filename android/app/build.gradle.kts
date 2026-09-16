@@ -49,7 +49,12 @@ android {
 
     buildTypes {
         release {
-            val signed = rootProject.file("key.properties").exists()
+            // Signed with the upload key only once the key itself exists: a
+            // key.properties still waiting for its passwords must not break the
+            // build a phone test needs.
+            val keyFile = rootProject.file("key.properties")
+            val signed = keyFile.exists() && Properties().apply { FileInputStream(keyFile).use { load(it) } }
+                .getProperty("storeFile")?.let { rootProject.file(it).exists() } == true
             signingConfig = signingConfigs.getByName(if (signed) "upload" else "debug")
             isMinifyEnabled = true
             isShrinkResources = true
