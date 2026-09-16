@@ -86,6 +86,11 @@ class Api {
     return detail;
   }
 
+  Future<AdviserDetail> adviser(String slug) async {
+    final json = await _getJson('/api/app/v1/adviser/$slug');
+    return AdviserDetail.fromJson(json);
+  }
+
   Future<List<CabinetPost>> cabinet() async {
     final json = await _getJson('/api/app/v1/cabinet');
     return (json['posts'] as List? ?? [])

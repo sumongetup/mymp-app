@@ -159,6 +159,7 @@ class MemberDetail {
   final String? email;
   final String? bioBn;
   final String? summaryBn;
+  final List<String> bioSources;
   final String? partyNameBn;
   final String? partyRoleBn;
   final String? ministryBn;
@@ -181,6 +182,7 @@ class MemberDetail {
     this.email,
     this.bioBn,
     this.summaryBn,
+    this.bioSources = const [],
     this.partyNameBn,
     this.partyRoleBn,
     this.ministryBn,
@@ -204,6 +206,7 @@ class MemberDetail {
         email: _s(j['email']),
         bioBn: _s(j['bioBn']),
         summaryBn: _s(j['summaryBn']),
+        bioSources: _strings(j['bioSources']),
         partyNameBn: _s(j['partyNameBn']),
         partyRoleBn: _s(j['partyRoleBn']),
         ministryBn: _s(j['ministryBn']),
@@ -221,13 +224,83 @@ class CabinetPost {
   final String? ministryBn;
   final String holderBn;
   final MemberBrief? member;
-  const CabinetPost({required this.title, this.ministryBn, required this.holderBn, this.member});
+  final String? photoUrl;
+
+  /// Set for an adviser from outside parliament who has a profile of their own.
+  final String? adviserSlug;
+
+  const CabinetPost({
+    required this.title,
+    this.ministryBn,
+    required this.holderBn,
+    this.member,
+    this.photoUrl,
+    this.adviserSlug,
+  });
 
   factory CabinetPost.fromJson(Map<String, dynamic> j) => CabinetPost(
         title: j['title'] as String? ?? '',
         ministryBn: _s(j['ministryBn']),
         holderBn: j['holderBn'] as String? ?? '',
         member: j['member'] is Map<String, dynamic> ? MemberBrief.fromJson(j['member'] as Map<String, dynamic>) : null,
+        photoUrl: _s(j['photoUrl']),
+        adviserSlug: _s(j['adviserSlug']),
+      );
+
+  /// The name without the "জনাব" the cabinet list puts before it.
+  String get plainHolder => holderBn.replaceFirst(RegExp(r'^জনাব\s+'), '').trim();
+}
+
+class AdviserPost {
+  final String title;
+  final String? ministryBn;
+  final String? fromDate;
+  const AdviserPost({required this.title, this.ministryBn, this.fromDate});
+
+  factory AdviserPost.fromJson(Map<String, dynamic> j) =>
+      AdviserPost(title: j['title'] as String? ?? '', ministryBn: _s(j['ministryBn']), fromDate: _s(j['fromDate']));
+}
+
+/// An adviser to the Prime Minister who is not a member of parliament.
+class AdviserDetail {
+  final String slug;
+  final String nameBn;
+  final String? rankBn;
+  final String bioBn;
+  final String? professionBn;
+  final String? educationBn;
+  final String? birthPlaceBn;
+  final String? partyRoleBn;
+  final String? photoUrl;
+  final List<String> sources;
+  final List<AdviserPost> posts;
+
+  const AdviserDetail({
+    required this.slug,
+    required this.nameBn,
+    this.rankBn,
+    required this.bioBn,
+    this.professionBn,
+    this.educationBn,
+    this.birthPlaceBn,
+    this.partyRoleBn,
+    this.photoUrl,
+    this.sources = const [],
+    this.posts = const [],
+  });
+
+  factory AdviserDetail.fromJson(Map<String, dynamic> j) => AdviserDetail(
+        slug: j['slug'] as String? ?? '',
+        nameBn: j['nameBn'] as String? ?? '',
+        rankBn: _s(j['rankBn']),
+        bioBn: j['bioBn'] as String? ?? '',
+        professionBn: _s(j['professionBn']),
+        educationBn: _s(j['educationBn']),
+        birthPlaceBn: _s(j['birthPlaceBn']),
+        partyRoleBn: _s(j['partyRoleBn']),
+        photoUrl: _s(j['photoUrl']),
+        sources: _strings(j['sources']),
+        posts: (j['posts'] as List? ?? []).whereType<Map<String, dynamic>>().map(AdviserPost.fromJson).toList(),
       );
 }
 

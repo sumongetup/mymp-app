@@ -3,6 +3,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
+import '../bio.dart';
 import '../bn.dart';
 import '../models.dart';
 import '../theme.dart';
@@ -237,37 +238,15 @@ class _MemberScreenState extends State<MemberScreen> {
         return ListView(
           padding: const EdgeInsets.fromLTRB(AppSizes.pagePad, 16, AppSizes.pagePad, 32),
           children: [
-            if (d.summaryBn != null || d.bioBn != null)
-              _card(
-                context,
-                'সংক্ষিপ্ত পরিচিতি',
-                Text(d.summaryBn ?? d.bioBn!, style: Theme.of(context).textTheme.bodyLarge),
-              ),
+            // The written biography, with its sources; the presiding officers'
+            // one-paragraph summary from parliament when there is no biography.
+            if (d.bioBn != null)
+              BioCard(text: d.bioBn!, sources: d.bioSources)
+            else if (d.summaryBn != null)
+              BioCard(text: d.summaryBn!, title: 'সংক্ষিপ্ত পরিচিতি'),
             if (facts.isNotEmpty) ...[
               const SizedBox(height: 12),
-              _card(
-                context,
-                'তথ্য',
-                Column(
-                  children: [
-                    for (var i = 0; i < facts.length; i++) ...[
-                      if (i > 0) const Divider(height: 18),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 104,
-                            child: Text(facts[i].label, style: Theme.of(context).textTheme.bodySmall),
-                          ),
-                          Expanded(
-                            child: Text(facts[i].value, style: Theme.of(context).textTheme.bodyLarge),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+              FactsCard(title: 'তথ্য', facts: facts),
             ],
             if (d.committees.isNotEmpty) ...[
               const SizedBox(height: 12),
