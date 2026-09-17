@@ -37,9 +37,26 @@ class MyMpApp extends StatelessWidget {
         final scale = MediaQuery.textScalerOf(
           context,
         ).clamp(minScaleFactor: 0.9, maxScaleFactor: 1.3);
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: scale),
-          child: child!,
+        final media = MediaQuery.of(context).copyWith(textScaler: scale);
+        // On a tablet or a wide window the app keeps a phone's column, centred:
+        // stretched across 1000 pixels a member card was one long thin line.
+        const maxWidth = 600.0;
+        if (media.size.width <= maxWidth) {
+          return MediaQuery(data: media, child: child!);
+        }
+        return ColoredBox(
+          color: const Color(0xFFE6E9E4),
+          child: Center(
+            child: ClipRect(
+              child: SizedBox(
+                width: maxWidth,
+                child: MediaQuery(
+                  data: media.copyWith(size: Size(maxWidth, media.size.height)),
+                  child: child!,
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
