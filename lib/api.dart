@@ -17,6 +17,10 @@ class Api {
   static const _userAgent = 'mymp-app/1.0 (Android; +https://mymp.bd)';
 
   Bootstrap? _bootstrap;
+
+  // Renamed when the list gains a field: a copy saved by an older version
+  // lacks it and would stand until the site's data next changed.
+  static const _bootstrapKey = 'bootstrap_v2';
   Bootstrap? get cached => _bootstrap;
 
   final _memberCache = <String, MemberDetail>{};
@@ -83,8 +87,10 @@ class Api {
 
   Future<Bootstrap> _loadBootstrap(bool force) async {
     final prefs = await SharedPreferences.getInstance();
+    // The copy saved under the old key is never read again.
+    if (prefs.containsKey('bootstrap')) unawaited(prefs.remove('bootstrap'));
     if (!force) {
-      final saved = prefs.getString('bootstrap');
+      final saved = prefs.getString(_bootstrapKey);
       if (saved != null) {
         try {
           _bootstrap = Bootstrap.fromJson(
@@ -93,13 +99,13 @@ class Api {
           unawaited(_refreshBootstrap(prefs));
           return _bootstrap!;
         } catch (_) {
-          await prefs.remove('bootstrap');
+          await prefs.remove(_bootstrapKey);
         }
       }
     }
 
     final json = await _getJson('/api/app/v1/bootstrap');
-    await prefs.setString('bootstrap', jsonEncode(json));
+    await prefs.setString(_bootstrapKey, jsonEncode(json));
     _bootstrap = Bootstrap.fromJson(json);
     return _bootstrap!;
   }
@@ -110,7 +116,7 @@ class Api {
       final json = await _getJson('/api/app/v1/bootstrap');
       final fresh = Bootstrap.fromJson(json);
       if (fresh.version != _bootstrap?.version && fresh.members.isNotEmpty) {
-        await prefs.setString('bootstrap', jsonEncode(json));
+        await prefs.setString(_bootstrapKey, jsonEncode(json));
         _bootstrap = fresh;
         onBootstrapUpdated?.call(fresh);
       }
@@ -142,6 +148,13 @@ class Api {
         .whereType<Map<String, dynamic>>()
         .map(CabinetPost.fromJson)
         .toList();
+  }
+
+  Map<String, dynamic>? _election;
+
+  /// The election and the House it produced; kept for the session once read.
+  Future<Map<String, dynamic>> election() async {
+    return _election ??= await _getJson('/api/app/v1/election');
   }
 
   Future<List<Story>> news({String? type, int limit = 200}) async {

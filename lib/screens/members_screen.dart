@@ -6,6 +6,7 @@ import '../brand_header.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'leaders_strip.dart';
 import 'member_screen.dart';
 
 /// The list every reader opens first: all 348 members, searchable by name, by
@@ -129,6 +130,12 @@ class _MembersScreenState extends State<MembersScreen> {
             child: CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(child: _header(data)),
+                // The House's leaders and the election figures first; a reader
+                // searching or filtering wants the list, so they step aside.
+                if (!filtered) ...[
+                  SliverToBoxAdapter(child: LeadersStrip(data: data)),
+                  const SliverToBoxAdapter(child: ElectionCard()),
+                ],
                 SliverToBoxAdapter(
                   child: _filters(data, shown.length, filtered),
                 ),

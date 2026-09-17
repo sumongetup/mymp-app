@@ -9,6 +9,7 @@ import '../bn.dart';
 import '../models.dart';
 import '../theme.dart';
 
+import 'leaders_strip.dart';
 import 'party_screen.dart';
 
 /// The parties, and the handful of things a reader looks for once: where the
@@ -58,6 +59,9 @@ class _MoreScreenState extends State<MoreScreen> {
               ),
               children: [
                 const DisclaimerCard(),
+                const SizedBox(height: 18),
+
+                const ElectionCard(padding: EdgeInsets.zero),
                 const SizedBox(height: 18),
 
                 if (parties.isNotEmpty) ...[
@@ -155,8 +159,8 @@ class _MoreScreenState extends State<MoreScreen> {
                 Center(
                   child: Text(
                     data == null
-                        ? 'সংস্করণ ১.১.০'
-                        : 'সংস্করণ ১.১.০, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
+                        ? 'সংস্করণ ১.২.০'
+                        : 'সংস্করণ ১.২.০, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ),

@@ -7,6 +7,29 @@ String bn(Object n) => n.toString().replaceAllMapped(
   (m) => _digits[int.parse(m[0]!)],
 );
 
+/// "১২,৭৭,১১,৮৯৯": thousands, then lakh and crore groups, as Bangla readers count.
+String bnGroup(int n) {
+  final neg = n < 0;
+  var digits = n.abs().toString();
+  var out = '';
+  if (digits.length > 3) {
+    out = ',${digits.substring(digits.length - 3)}';
+    digits = digits.substring(0, digits.length - 3);
+    while (digits.length > 2) {
+      out = ',${digits.substring(digits.length - 2)}$out';
+      digits = digits.substring(0, digits.length - 2);
+    }
+    out = '$digits$out';
+  } else {
+    out = digits;
+  }
+  return bn('${neg ? '-' : ''}$out');
+}
+
+/// "৫০.৪%" for a share of a whole, one decimal.
+String pctBn(num part, num whole) =>
+    whole <= 0 ? '০%' : '${bn((part * 100 / whole).toStringAsFixed(1))}%';
+
 const monthsBn = [
   'জানুয়ারি',
   'ফেব্রুয়ারি',

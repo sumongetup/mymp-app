@@ -8,6 +8,7 @@ import '../bn.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'seat_result_card.dart';
 import 'story_list.dart';
 
 /// One member: who they are, what they hold, and what the press has written
@@ -303,6 +304,10 @@ class _MemberScreenState extends State<MemberScreen> {
             if (facts.isNotEmpty) ...[
               const SizedBox(height: 12),
               FactsCard(title: 'তথ্য', facts: facts),
+            ],
+            if (d.result != null) ...[
+              const SizedBox(height: 12),
+              SeatResultCard(seatLabel: d.brief.seatLabel, result: d.result!),
             ],
             if (d.committees.isNotEmpty) ...[
               const SizedBox(height: 12),

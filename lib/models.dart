@@ -97,12 +97,16 @@ class Bootstrap {
   final List<PartyBrief> parties;
   final List<String> districts;
 
+  /// The Prime Minister, Speaker, Deputy, Opposition Leader and Chief Whip.
+  final List<Leader> leaders;
+
   const Bootstrap({
     required this.version,
     required this.parliamentNo,
     required this.members,
     required this.parties,
     required this.districts,
+    this.leaders = const [],
   });
 
   factory Bootstrap.fromJson(Map<String, dynamic> j) => Bootstrap(
@@ -117,7 +121,66 @@ class Bootstrap {
         .map(PartyBrief.fromJson)
         .toList(),
     districts: _strings(j['districts']),
+    leaders: (j['leaders'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(Leader.fromJson)
+        .where((l) => l.memberId.isNotEmpty)
+        .toList(),
   );
+}
+
+class Leader {
+  final String roleBn;
+  final String memberId;
+  const Leader({required this.roleBn, required this.memberId});
+
+  factory Leader.fromJson(Map<String, dynamic> j) => Leader(
+    roleBn: j['roleBn'] as String? ?? '',
+    memberId: j['memberId'] as String? ?? '',
+  );
+}
+
+/// One candidate in a seat's result.
+class Candidate {
+  final String name;
+  final String? party;
+  final String? partyBn;
+  final int votes;
+  const Candidate({
+    required this.name,
+    this.party,
+    this.partyBn,
+    required this.votes,
+  });
+
+  factory Candidate.fromJson(Map<String, dynamic> j) => Candidate(
+    name: j['name'] as String? ?? '',
+    party: _s(j['party']),
+    partyBn: _s(j['partyBn']),
+    votes: _i(j['votes']) ?? 0,
+  );
+}
+
+/// A seat's 2026 result, candidates by votes, with where it was read.
+class SeatResult {
+  final List<Candidate> candidates;
+  final String? sourceUrl;
+  final String? sourceNote;
+  const SeatResult({required this.candidates, this.sourceUrl, this.sourceNote});
+
+  static SeatResult? fromJson(dynamic j) {
+    if (j is! Map<String, dynamic>) return null;
+    final list = (j['candidates'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(Candidate.fromJson)
+        .toList();
+    if (list.isEmpty) return null;
+    return SeatResult(
+      candidates: list,
+      sourceUrl: _s(j['sourceUrl']),
+      sourceNote: _s(j['sourceNote']),
+    );
+  }
 }
 
 class CommitteeRef {
@@ -179,6 +242,7 @@ class MemberDetail {
   final List<SocialLink> socials;
   final List<CommitteeRef> committees;
   final List<PriorTerm> priorTerms;
+  final SeatResult? result;
 
   const MemberDetail({
     required this.brief,
@@ -202,6 +266,7 @@ class MemberDetail {
     this.socials = const [],
     this.committees = const [],
     this.priorTerms = const [],
+    this.result,
   });
 
   factory MemberDetail.fromJson(Map<String, dynamic> j) => MemberDetail(
@@ -235,6 +300,7 @@ class MemberDetail {
         .whereType<Map<String, dynamic>>()
         .map(PriorTerm.fromJson)
         .toList(),
+    result: SeatResult.fromJson(j['result']),
   );
 }
 
