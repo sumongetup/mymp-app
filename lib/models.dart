@@ -19,7 +19,12 @@ class MemberBrief {
   final String? partyBn;
   final int? seatNo;
   final String? seatBn;
+  final String? seatEn;
   final String? districtBn;
+  final String? districtEn;
+
+  /// The upazilas the seat covers, for search.
+  final String? areaBn;
   final String? officeBn;
   final bool reserved;
 
@@ -34,7 +39,10 @@ class MemberBrief {
     this.partyBn,
     this.seatNo,
     this.seatBn,
+    this.seatEn,
     this.districtBn,
+    this.districtEn,
+    this.areaBn,
     this.officeBn,
     this.reserved = false,
   });
@@ -50,7 +58,10 @@ class MemberBrief {
     partyBn: _s(j['partyBn']),
     seatNo: _i(j['seatNo']),
     seatBn: _s(j['seatBn']),
+    seatEn: _s(j['seatEn']),
     districtBn: _s(j['districtBn']),
+    districtEn: _s(j['districtEn']),
+    areaBn: _s(j['areaBn']),
     officeBn: _s(j['officeBn']),
     reserved: _b(j['reserved']),
   );

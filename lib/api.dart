@@ -20,7 +20,7 @@ class Api {
 
   // Renamed when the list gains a field: a copy saved by an older version
   // lacks it and would stand until the site's data next changed.
-  static const _bootstrapKey = 'bootstrap_v2';
+  static const _bootstrapKey = 'bootstrap_v3';
   Bootstrap? get cached => _bootstrap;
 
   final _memberCache = <String, MemberDetail>{};
@@ -87,8 +87,10 @@ class Api {
 
   Future<Bootstrap> _loadBootstrap(bool force) async {
     final prefs = await SharedPreferences.getInstance();
-    // The copy saved under the old key is never read again.
-    if (prefs.containsKey('bootstrap')) unawaited(prefs.remove('bootstrap'));
+    // Copies saved under older keys are never read again.
+    for (final old in const ['bootstrap', 'bootstrap_v2']) {
+      if (prefs.containsKey(old)) unawaited(prefs.remove(old));
+    }
     if (!force) {
       final saved = prefs.getString(_bootstrapKey);
       if (saved != null) {

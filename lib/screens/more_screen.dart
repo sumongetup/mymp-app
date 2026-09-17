@@ -166,8 +166,8 @@ class _MoreScreenState extends State<MoreScreen> {
                 Center(
                   child: Text(
                     data == null
-                        ? 'সংস্করণ ১.২.১'
-                        : 'সংস্করণ ১.২.১, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
+                        ? 'সংস্করণ ১.২.২'
+                        : 'সংস্করণ ১.২.২, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ),

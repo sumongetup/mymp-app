@@ -35,7 +35,11 @@ void main() {
 
   group('parsing what the site sends', () {
     test('a member survives missing fields', () {
-      final m = MemberBrief.fromJson(const {'id': '1', 'slug': 'x', 'nameBn': 'ক খ'});
+      final m = MemberBrief.fromJson(const {
+        'id': '1',
+        'slug': 'x',
+        'nameBn': 'ক খ',
+      });
       expect(m.nameBn, 'ক খ');
       expect(m.photoUrl, isNull);
       expect(m.seatLabel, 'সংরক্ষিত আসন');
@@ -44,14 +48,22 @@ void main() {
     test('a story takes either one member or several', () {
       final one = Story.fromJson(const {
         'id': 'a',
-        'lead': {'title': 'শিরোনাম', 'source': 'প্রথম আলো', 'url': 'https://example.com'},
+        'lead': {
+          'title': 'শিরোনাম',
+          'source': 'প্রথম আলো',
+          'url': 'https://example.com',
+        },
         'member': {'slug': 's', 'name': 'ক খ'},
       });
       expect(one.members.single.name, 'ক খ');
 
       final many = Story.fromJson(const {
         'id': 'b',
-        'lead': {'title': 'শিরোনাম', 'source': 'সমকাল', 'url': 'https://example.com'},
+        'lead': {
+          'title': 'শিরোনাম',
+          'source': 'সমকাল',
+          'url': 'https://example.com',
+        },
         'members': [
           {'slug': 's1', 'name': 'ক'},
           {'slug': 's2', 'name': 'খ'},
@@ -68,7 +80,9 @@ void main() {
     });
   });
 
-  testWidgets('a member tile shows the name, the seat and the office', (tester) async {
+  testWidgets('a member tile shows the name, the seat and the office', (
+    tester,
+  ) async {
     const member = MemberBrief(
       id: '013025201',
       slug: 'hasnat-abdullah',
@@ -81,7 +95,9 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: MemberTile(member: member, onTap: () {})),
+        home: Scaffold(
+          body: MemberTile(member: member, onTap: () {}),
+        ),
       ),
     );
 

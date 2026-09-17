@@ -5,6 +5,7 @@ import '../bn.dart';
 import '../brand_header.dart';
 import '../models.dart';
 import '../party_logo.dart';
+import '../search.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'leaders_strip.dart';
@@ -57,33 +58,33 @@ class _MembersScreenState extends State<MembersScreen> {
     _district = null;
   });
 
-  /// Matching folds the spellings a reader will not think about: ৎ and ত, the
-  /// two ই, the two উ, and the hasanta, so "শফিকুর" finds "শফিকুর" however the
-  /// secretariat typed it.
-  static String _fold(String s) => s
-      .replaceAll('্', '')
-      .replaceAll('ী', 'ি')
-      .replaceAll('ূ', 'ু')
-      .replaceAll('ণ', 'ন')
-      .replaceAll('ষ', 'স')
-      .replaceAll('শ', 'স')
-      .replaceAll('ৎ', 'ত')
-      .replaceAll('়', '')
-      .toLowerCase();
+  MemberSearch? _index_;
+  Bootstrap? _indexed;
 
-  List<MemberBrief> _filter(List<MemberBrief> all) {
-    final words = _fold(
-      _query,
-    ).split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-    return all.where((m) {
-      if (_party != null && m.party != _party) return false;
-      if (_district != null && m.districtBn != _district) return false;
-      if (words.isEmpty) return true;
-      final hay = _fold(
-        '${m.nameBn} ${m.nameEn ?? ''} ${m.seatBn ?? ''} ${m.districtBn ?? ''} ${m.officeBn ?? ''}',
+  /// Built once per member list, not per keystroke.
+  MemberSearch _searchFor(Bootstrap data) {
+    if (_index_ == null || !identical(_indexed, data)) {
+      _index_ = MemberSearch(
+        data.members,
+        partyNames: {for (final p in data.parties) p.abbr: p.nameBn},
       );
-      return words.every(hay.contains);
-    }).toList()..sort((a, b) => (a.seatNo ?? 9999).compareTo(b.seatNo ?? 9999));
+      _indexed = data;
+    }
+    return _index_!;
+  }
+
+  /// Party and district narrow the list; a typed query then ranks it, best
+  /// match first, in Bangla or English (see search.dart). With no query the
+  /// list keeps seat order.
+  List<MemberBrief> _filter(Bootstrap data) {
+    bool keep(MemberBrief m) =>
+        (_party == null || m.party == _party) &&
+        (_district == null || m.districtBn == _district);
+    if (_query.trim().isEmpty) {
+      return data.members.where(keep).toList()
+        ..sort((a, b) => (a.seatNo ?? 9999).compareTo(b.seatNo ?? 9999));
+    }
+    return _searchFor(data).search(_query).where(keep).toList();
   }
 
   Future<void> _pickDistrict(List<String> districts) async {
@@ -121,7 +122,7 @@ class _MembersScreenState extends State<MembersScreen> {
           }
 
           final data = snap.data!;
-          final shown = _filter(data.members);
+          final shown = _filter(data);
           final filtered =
               _party != null || _district != null || _query.isNotEmpty;
 
@@ -200,7 +201,7 @@ class _MembersScreenState extends State<MembersScreen> {
           const SizedBox(height: 14),
           HeaderSearchField(
             controller: _search,
-            hint: 'নাম, আসন বা জেলা দিয়ে খুঁজুন',
+            hint: 'নাম, আসন, জেলা বা উপজেলা (বাংলা/English)',
             onChanged: (v) => setState(() => _query = v),
             onClear: () => setState(() {
               _search.clear();
