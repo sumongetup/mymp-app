@@ -25,19 +25,41 @@ class Api {
     String path, {
     Duration timeout = const Duration(seconds: 20),
   }) async {
-    final res = await http
-        .get(
-          Uri.parse('$base$path'),
-          headers: const {
-            'accept': 'application/json',
-            'user-agent': _userAgent,
-          },
-        )
-        .timeout(timeout);
-    if (res.statusCode != 200) {
-      throw ApiException('সার্ভার সাড়া দেয়নি (${res.statusCode})');
+    final http.Response res;
+    try {
+      res = await http
+          .get(
+            Uri.parse('$base$path'),
+            headers: const {
+              'accept': 'application/json',
+              'user-agent': _userAgent,
+            },
+          )
+          .timeout(timeout);
+    } on TimeoutException {
+      throw ApiException(
+        'সংযোগ খুব ধীর, সময়মতো উত্তর আসেনি। একটু পরে আবার চেষ্টা করুন।',
+      );
+    } catch (_) {
+      // No signal, no data plan, or the site unreachable: the reader cannot
+      // act on a socket error's English text, only on what it means.
+      throw ApiException(
+        'ইন্টারনেট সংযোগ পাওয়া যাচ্ছে না। সংযোগ দেখে আবার চেষ্টা করুন।',
+      );
     }
-    return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    if (res.statusCode == 404) {
+      throw ApiException('এই তথ্যটি এখন আর পাওয়া যাচ্ছে না।');
+    }
+    if (res.statusCode != 200) {
+      throw ApiException(
+        'সার্ভার এই মুহূর্তে সাড়া দিচ্ছে না। একটু পরে আবার চেষ্টা করুন।',
+      );
+    }
+    try {
+      return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    } catch (_) {
+      throw ApiException('তথ্য পড়া গেল না। একটু পরে আবার চেষ্টা করুন।');
+    }
   }
 
   /// The member list, from the phone first and the network second.
@@ -60,7 +82,6 @@ class Api {
   Future<Bootstrap>? _loading;
 
   Future<Bootstrap> _loadBootstrap(bool force) async {
-
     final prefs = await SharedPreferences.getInstance();
     if (!force) {
       final saved = prefs.getString('bootstrap');
