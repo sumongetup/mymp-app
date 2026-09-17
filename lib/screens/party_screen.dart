@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api.dart';
 import '../bn.dart';
 import '../models.dart';
+import '../party_logo.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'member_screen.dart';
@@ -50,14 +51,7 @@ class PartyScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          width: 14,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: colour,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
+                        PartyLogo(abbr: party.abbr, size: 44),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(

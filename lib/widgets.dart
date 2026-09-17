@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'bn.dart';
 import 'models.dart';
+import 'party_logo.dart';
 import 'theme.dart';
 
 /// A member's photograph, or the first letter of their name on the party's
@@ -59,16 +60,11 @@ class PartyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (abbr == null && label == null) return const SizedBox.shrink();
-    final colour = AppColors.party(abbr);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: colour, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
+        PartyLogo(abbr: abbr, size: compact ? 17 : 19),
+        const SizedBox(width: 5),
         Flexible(
           child: Text(
             label ?? abbr!,
@@ -306,6 +302,9 @@ class ChipBar extends StatelessWidget {
   final ValueChanged<String?> onSelect;
   final bool onDark;
   final EdgeInsets padding;
+
+  /// A mark before an option's label, such as a party's logo.
+  final Widget? Function(String? value)? leading;
   const ChipBar({
     super.key,
     required this.options,
@@ -313,6 +312,7 @@ class ChipBar extends StatelessWidget {
     required this.onSelect,
     this.onDark = false,
     this.padding = const EdgeInsets.symmetric(horizontal: AppSizes.pagePad),
+    this.leading,
   });
 
   @override
@@ -350,15 +350,32 @@ class ChipBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSizes.radiusPill),
                 border: Border.all(color: line),
               ),
-              child: Text(
-                o.label,
-                style: TextStyle(
-                  fontFamily: 'NotoSansBengali',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: fg,
-                  height: 1.2,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (leading?.call(o.value) case final mark?) ...[
+                    // On the selected green chip the logo sits on a white disc.
+                    Container(
+                      padding: const EdgeInsets.all(1.5),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: mark,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(
+                    o.label,
+                    style: TextStyle(
+                      fontFamily: 'NotoSansBengali',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: fg,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
               ),
             ),
           );

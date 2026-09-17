@@ -7,6 +7,7 @@ import '../brand_header.dart';
 import '../disclaimer.dart';
 import '../bn.dart';
 import '../models.dart';
+import '../party_logo.dart';
 import '../theme.dart';
 
 import 'leaders_strip.dart';
@@ -71,6 +72,12 @@ class _MoreScreenState extends State<MoreScreen> {
                     _PartyRow(party: p),
                     const SizedBox(height: 8),
                   ],
+                  Text(
+                    partyLogoCredit,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(height: 1.5),
+                  ),
                   const SizedBox(height: 18),
                 ],
 
@@ -159,8 +166,8 @@ class _MoreScreenState extends State<MoreScreen> {
                 Center(
                   child: Text(
                     data == null
-                        ? 'সংস্করণ ১.২.০'
-                        : 'সংস্করণ ১.২.০, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
+                        ? 'সংস্করণ ১.২.১'
+                        : 'সংস্করণ ১.২.১, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ),
@@ -207,7 +214,6 @@ class _PartyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colour = AppColors.party(party.abbr);
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppSizes.radiusCard),
@@ -221,14 +227,7 @@ class _PartyRow extends StatelessWidget {
           decoration: AppDecor.card(),
           child: Row(
             children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: colour,
-                  shape: BoxShape.circle,
-                ),
-              ),
+              PartyLogo(abbr: party.abbr, size: 38),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

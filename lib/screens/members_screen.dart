@@ -4,6 +4,7 @@ import '../api.dart';
 import '../bn.dart';
 import '../brand_header.dart';
 import '../models.dart';
+import '../party_logo.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'leaders_strip.dart';
@@ -225,6 +226,7 @@ class _MembersScreenState extends State<MembersScreen> {
               ),
             ],
             selected: _party,
+            leading: (v) => v == null ? null : PartyLogo(abbr: v, size: 18),
             onSelect: (v) => setState(() => _party = v == _party ? null : v),
           ),
           const SizedBox(height: 10),

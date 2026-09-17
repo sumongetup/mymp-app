@@ -3,7 +3,7 @@ description: "আমার এমপি — বাংলাদেশের স�
 publish_to: 'none'
 
 # versionName+versionCode. Raise the build number for every upload to Play.
-version: 1.2.0+3
+version: 1.2.1+4
 
 environment:
   sdk: ^3.12.2
@@ -31,6 +31,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/party/
 
   fonts:
     # Bundled, not fetched: the app opens on a bus with no signal, and a
