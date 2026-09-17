@@ -380,7 +380,9 @@ class _MemberScreenState extends State<MemberScreen> {
                   ),
                 ),
               ],
-              if (d.socials.isNotEmpty || d.email != null) ...[
+              if (d.socials.isNotEmpty ||
+                  d.email != null ||
+                  d.facebookNotice != null) ...[
                 const SizedBox(height: 12),
                 _card(
                   context,
@@ -399,8 +401,31 @@ class _MemberScreenState extends State<MemberScreen> {
                         _linkRow(
                           context,
                           Icons.open_in_new_rounded,
-                          s.label,
+                          s.unverified
+                              ? '${s.label} (যাচাই করা হয়নি)'
+                              : s.label,
                           () => _open(s.url),
+                        ),
+                      // A page in dispute: no link, only the note.
+                      if (d.facebookNotice != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 9),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.help_outline_rounded,
+                                size: 18,
+                                color: AppColors.muted,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  d.facebookNotice!,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                     ],
                   ),

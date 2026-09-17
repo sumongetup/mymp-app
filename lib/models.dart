@@ -223,11 +223,19 @@ class PriorTerm {
 class SocialLink {
   final String label;
   final String url;
-  const SocialLink({required this.label, required this.url});
+
+  /// A Facebook page the site has not confirmed yet; shown with a note.
+  final bool unverified;
+  const SocialLink({
+    required this.label,
+    required this.url,
+    this.unverified = false,
+  });
 
   factory SocialLink.fromJson(Map<String, dynamic> j) => SocialLink(
     label: j['label'] as String? ?? j['key'] as String? ?? '',
     url: j['url'] as String? ?? '',
+    unverified: _b(j['unverified']),
   );
 }
 
@@ -251,6 +259,9 @@ class MemberDetail {
   final String? resignedOn;
   final List<String> offices;
   final List<SocialLink> socials;
+
+  /// Shown instead of a Facebook link while the member's page is in dispute.
+  final String? facebookNotice;
   final List<CommitteeRef> committees;
   final List<PriorTerm> priorTerms;
   final SeatResult? result;
@@ -275,6 +286,7 @@ class MemberDetail {
     this.resignedOn,
     this.offices = const [],
     this.socials = const [],
+    this.facebookNotice,
     this.committees = const [],
     this.priorTerms = const [],
     this.result,
@@ -299,6 +311,7 @@ class MemberDetail {
     termsCount: _i(j['termsCount']),
     resignedOn: _s(j['resignedOn']),
     offices: _strings(j['offices']),
+    facebookNotice: _s(j['facebookNotice']),
     socials: (j['socials'] as List? ?? [])
         .whereType<Map<String, dynamic>>()
         .map(SocialLink.fromJson)
