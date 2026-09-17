@@ -153,7 +153,7 @@ class MemberTile extends StatelessWidget {
                       children: [
                         Text(member.seatLabel, style: Theme.of(context).textTheme.bodySmall),
                         if (member.party != null) ...[
-                          Text(' · ', style: Theme.of(context).textTheme.bodySmall),
+                          Text(', ', style: Theme.of(context).textTheme.bodySmall),
                           Flexible(child: PartyChip(abbr: member.party, label: member.partyBn, compact: true)),
                         ],
                       ],

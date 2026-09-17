@@ -145,8 +145,12 @@ class _MembersScreenState extends State<MembersScreen> {
                   children: [
                     Text('সংসদ সদস্য', style: Theme.of(context).textTheme.displaySmall),
                     Text(
-                      '${bn(data.parliamentNo)}তম জাতীয় সংসদ · ${bn(data.members.length)} জন',
+                      '${bn(data.parliamentNo)}তম জাতীয় সংসদ, ${bn(data.members.length)} জন',
                       style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      'স্বাধীন, বেসরকারি তথ্যসেবা; সরকারি অ্যাপ নয়',
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ],
                 ),

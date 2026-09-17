@@ -77,7 +77,7 @@ class _MemberScreenState extends State<MemberScreen> {
                   icon: const Icon(Icons.share_outlined),
                   onPressed: () => SharePlus.instance.share(
                     ShareParams(
-                      text: '${m.nameBn} · ${m.seatLabel}\n${Api.base}/mp/${m.slug}',
+                      text: '${m.nameBn}, ${m.seatLabel}\n${Api.base}/mp/${m.slug}',
                       subject: m.nameBn,
                     ),
                   ),
@@ -98,9 +98,23 @@ class _MemberScreenState extends State<MemberScreen> {
                   ),
                 ),
               ),
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.parallax,
-                background: _hero(context, m),
+              // The photo and name fade out as the bar collapses, and are gone
+              // before they reach the tabs: sliding under them, the photo covered
+              // "পরিচিতি" and "সংবাদ ও ভিডিও" halfway through a scroll.
+              flexibleSpace: LayoutBuilder(
+                builder: (context, box) {
+                  final top = MediaQuery.paddingOf(context).top;
+                  final collapsed = kToolbarHeight + kTextTabBarHeight + top;
+                  final open = _heroHeight + top;
+                  final t = ((box.maxHeight - collapsed) / (open - collapsed)).clamp(0.0, 1.0);
+                  return FlexibleSpaceBar(
+                    collapseMode: CollapseMode.parallax,
+                    background: Opacity(
+                      opacity: ((t - 0.45) / 0.55).clamp(0.0, 1.0),
+                      child: _hero(context, m),
+                    ),
+                  );
+                },
               ),
               // The tabs sit on the green bar at both sizes, so they are drawn
               // in white: the brand green on brand green could not be read.
@@ -285,7 +299,7 @@ class _MemberScreenState extends State<MemberScreen> {
                   runSpacing: 8,
                   children: [
                     for (final t in d.priorTerms)
-                      Pill('${bn(t.parliamentNo)}ম সংসদ${t.seatBn != null ? ' · ${t.seatBn}' : ''}'),
+                      Pill('${bn(t.parliamentNo)}ম সংসদ${t.seatBn != null ? ', ${t.seatBn}' : ''}'),
                   ],
                 ),
               ),

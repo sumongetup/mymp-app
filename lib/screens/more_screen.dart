@@ -3,6 +3,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
+import '../disclaimer.dart';
 import '../bn.dart';
 import '../models.dart';
 import '../theme.dart';
@@ -30,6 +31,8 @@ class MoreScreen extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(AppSizes.pagePad, 10, AppSizes.pagePad, 32),
           children: [
             Text('আরও', style: Theme.of(context).textTheme.displaySmall),
+            const SizedBox(height: 18),
+            const DisclaimerCard(),
             const SizedBox(height: 18),
 
             if (parties.isNotEmpty) ...[
@@ -67,7 +70,7 @@ class MoreScreen extends StatelessWidget {
                     Icons.share_outlined,
                     'অ্যাপটি শেয়ার করুন',
                     () => SharePlus.instance.share(
-                      ShareParams(text: 'আমার এমপি — বাংলাদেশের সংসদ সদস্যদের তথ্য: ${Api.base}'),
+                      ShareParams(text: 'আমার এমপি: বাংলাদেশের সংসদ সদস্যদের তথ্য, ${Api.base}'),
                     ),
                   ),
                 ],
@@ -98,7 +101,7 @@ class MoreScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: Text(
-                data == null ? 'সংস্করণ ১.০.০' : 'সংস্করণ ১.০.০ · ${bn(data.parliamentNo)}তম সংসদ',
+                data == null ? 'সংস্করণ ১.১.০' : 'সংস্করণ ১.১.০, ${bn(data.parliamentNo)}তম সংসদ',
                 style: Theme.of(context).textTheme.labelSmall,
               ),
             ),

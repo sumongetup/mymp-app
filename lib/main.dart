@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'disclaimer.dart';
 import 'screens/cabinet_screen.dart';
 import 'screens/members_screen.dart';
 import 'screens/more_screen.dart';
@@ -51,6 +52,13 @@ class _ShellState extends State<Shell> {
   // Held in an IndexedStack, so a reader who scrolled the member list halfway
   // down and went to look at the news comes back to where they were.
   final _screens = const [MembersScreen(), NewsScreen(), CabinetScreen(), MoreScreen()];
+
+  @override
+  void initState() {
+    super.initState();
+    // Once, on first launch: this is not a government app, and where its information comes from.
+    WidgetsBinding.instance.addPostFrameCallback((_) => showDisclaimerOnce(context));
+  }
 
   @override
   Widget build(BuildContext context) {
