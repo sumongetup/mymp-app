@@ -10,12 +10,14 @@ import 'theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: AppColors.surface,
-    systemNavigationBarIconBrightness: Brightness.dark,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: AppColors.surface,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
   runApp(const MyMpApp());
 }
 
@@ -32,8 +34,13 @@ class MyMpApp extends StatelessWidget {
       builder: (context, child) {
         // A reader who has made the system font large gets it, up to a point:
         // past 1.3 the Bengali headlines start breaking mid-word inside cards.
-        final scale = MediaQuery.textScalerOf(context).clamp(minScaleFactor: 0.9, maxScaleFactor: 1.3);
-        return MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: scale), child: child!);
+        final scale = MediaQuery.textScalerOf(
+          context,
+        ).clamp(minScaleFactor: 0.9, maxScaleFactor: 1.3);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: scale),
+          child: child!,
+        );
       },
     );
   }
@@ -51,13 +58,20 @@ class _ShellState extends State<Shell> {
 
   // Held in an IndexedStack, so a reader who scrolled the member list halfway
   // down and went to look at the news comes back to where they were.
-  final _screens = const [MembersScreen(), NewsScreen(), CabinetScreen(), MoreScreen()];
+  final _screens = const [
+    MembersScreen(),
+    NewsScreen(),
+    CabinetScreen(),
+    MoreScreen(),
+  ];
 
   @override
   void initState() {
     super.initState();
     // Once, on first launch: this is not a government app, and where its information comes from.
-    WidgetsBinding.instance.addPostFrameCallback((_) => showDisclaimerOnce(context));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => showDisclaimerOnce(context),
+    );
   }
 
   @override
@@ -65,7 +79,9 @@ class _ShellState extends State<Shell> {
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(border: Border(top: BorderSide(color: AppColors.rule))),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.rule)),
+        ),
         child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),

@@ -2,14 +2,35 @@
 /// a reader expects to see, not 348.
 const _digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
-String bn(Object n) => n.toString().replaceAllMapped(RegExp(r'\d'), (m) => _digits[int.parse(m[0]!)]);
+String bn(Object n) => n.toString().replaceAllMapped(
+  RegExp(r'\d'),
+  (m) => _digits[int.parse(m[0]!)],
+);
 
 const monthsBn = [
-  'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-  'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর',
+  'জানুয়ারি',
+  'ফেব্রুয়ারি',
+  'মার্চ',
+  'এপ্রিল',
+  'মে',
+  'জুন',
+  'জুলাই',
+  'আগস্ট',
+  'সেপ্টেম্বর',
+  'অক্টোবর',
+  'নভেম্বর',
+  'ডিসেম্বর',
 ];
 
-const weekdaysBn = ['সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার', 'রবিবার'];
+const weekdaysBn = [
+  'সোমবার',
+  'মঙ্গলবার',
+  'বুধবার',
+  'বৃহস্পতিবার',
+  'শুক্রবার',
+  'শনিবার',
+  'রবিবার',
+];
 
 /// "১৩ সেপ্টেম্বর ২০২৬" from an ISO date, or null when there is nothing to show.
 String? dateBn(String? iso) {
@@ -49,7 +70,11 @@ String shortDateBn(String? iso, {String? label}) {
     return l.contains(',') ? l.split(',').last.trim() : l;
   }
   final now = DateTime.now();
-  final days = DateTime(now.year, now.month, now.day).difference(DateTime(d.year, d.month, d.day)).inDays;
+  final days = DateTime(
+    now.year,
+    now.month,
+    now.day,
+  ).difference(DateTime(d.year, d.month, d.day)).inDays;
   if (days == 0) return 'আজ';
   if (days == 1) return 'গতকাল';
   final base = '${bn(d.day)} ${monthsBn[d.month - 1]}';
@@ -62,7 +87,17 @@ String initialOf(String name) {
   if (trimmed.isEmpty) return '?';
   // Bengali names often start with an honorific the reader does not think of
   // as part of the name; the first real word is the one to take a letter from.
-  const skip = {'মোঃ', 'মো.', 'মোহাম্মদ', 'মুহাম্মদ', 'ডাঃ', 'ডা.', 'ব্যারিস্টার', 'অ্যাডভোকেট', 'এড.'};
+  const skip = {
+    'মোঃ',
+    'মো.',
+    'মোহাম্মদ',
+    'মুহাম্মদ',
+    'ডাঃ',
+    'ডা.',
+    'ব্যারিস্টার',
+    'অ্যাডভোকেট',
+    'এড.',
+  };
   for (final word in trimmed.split(RegExp(r'\s+'))) {
     if (!skip.contains(word) && word.isNotEmpty) return word.characters0;
   }
@@ -79,4 +114,26 @@ extension on String {
     }
     return substring(0, end);
   }
+}
+
+/// A parliament by its Bangla ordinal, as the secretariat writes it: ত্রয়োদশ, not ১৩তম.
+String parliamentBn(int n) {
+  const words = {
+    1: 'প্রথম',
+    2: 'দ্বিতীয়',
+    3: 'তৃতীয়',
+    4: 'চতুর্থ',
+    5: 'পঞ্চম',
+    6: 'ষষ্ঠ',
+    7: 'সপ্তম',
+    8: 'অষ্টম',
+    9: 'নবম',
+    10: 'দশম',
+    11: 'একাদশ',
+    12: 'দ্বাদশ',
+    13: 'ত্রয়োদশ',
+    14: 'চতুর্দশ',
+    15: 'পঞ্চদশ',
+  };
+  return words[n] ?? '${bn(n)}তম';
 }

@@ -11,7 +11,10 @@ import 'member_screen.dart';
 
 /// A channel's hourly bulletin names the Prime Minister in passing; it is not a
 /// video about a member, so it goes after the ones that are.
-final _bulletin = RegExp(r'headlines|bulletin|শিরোনাম|২৪\s*ঘণ্টা|\bnews at\b|\blive\b|সরাসরি', caseSensitive: false);
+final _bulletin = RegExp(
+  r'headlines|bulletin|শিরোনাম|২৪\s*ঘণ্টা|\bnews at\b|\blive\b|সরাসরি',
+  caseSensitive: false,
+);
 
 /// Newest first, but varied: videos about a member before bulletins, and at most
 /// two about the same member, so one busy day does not fill the row. The same
@@ -51,26 +54,67 @@ class VideoStrip extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('ভিডিওতে সংসদ সদস্যরা', style: Theme.of(context).textTheme.titleLarge)),
+            Container(
+              width: 4,
+              height: 18,
+              decoration: BoxDecoration(
+                color: AppColors.brand,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'ভিডিওতে সংসদ সদস্যরা',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
             TextButton(
               onPressed: onSeeAll,
-              style: TextButton.styleFrom(foregroundColor: AppColors.brand, padding: const EdgeInsets.symmetric(horizontal: 6)),
-              child: const Text('সব ভিডিও', style: TextStyle(fontFamily: 'NotoSansBengali', fontWeight: FontWeight.w700)),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.brand,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+              ),
+              child: const Text(
+                'সব ভিডিও',
+                style: TextStyle(
+                  fontFamily: 'NotoSansBengali',
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 6),
         SizedBox(
-          height: 236,
+          height: 204,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            padding: const EdgeInsets.only(bottom: 8),
             itemCount: picked.length,
             separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (context, i) => _VideoCard(story: picked[i]),
           ),
         ),
         const SizedBox(height: 14),
-        Text('সংবাদ', style: Theme.of(context).textTheme.titleLarge),
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 18,
+              decoration: BoxDecoration(
+                color: AppColors.brand,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'সর্বশেষ সংবাদ',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -86,101 +130,184 @@ class _VideoCard extends StatelessWidget {
   }
 
   void _openMember(BuildContext context, String slug) {
-    final brief = Api.instance.cached?.members.where((m) => m.slug == slug).firstOrNull;
+    final brief = Api.instance.cached?.members
+        .where((m) => m.slug == slug)
+        .firstOrNull;
     if (brief == null) return;
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => MemberScreen(member: brief)));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => MemberScreen(member: brief)));
   }
 
   @override
   Widget build(BuildContext context) {
     final length = durationBn(story.durationSeconds);
     final person = story.members.isNotEmpty ? story.members.first : null;
-    return SizedBox(
-      width: 236,
+    return Container(
+      width: 262,
+      decoration: AppDecor.card(),
+      clipBehavior: Clip.antiAlias,
       child: Material(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-        clipBehavior: Clip.antiAlias,
+        color: Colors.transparent,
         child: InkWell(
           onTap: _open,
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-              border: Border.all(color: AppColors.rule),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: story.thumbnail!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(color: AppColors.sunk),
-                        errorWidget: (_, _, _) => Container(color: AppColors.sunk),
-                      ),
-                      Container(
-                        color: Colors.black.withValues(alpha: 0.18),
-                        alignment: Alignment.center,
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.95), shape: BoxShape.circle),
-                          child: const Icon(Icons.play_arrow_rounded, size: 26, color: Color(0xFFE62117)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 158,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ClipRect(
+                      child: Transform.scale(
+                        scale: story.thumbnail!.contains('ytimg.com')
+                            ? 1.22
+                            : 1.0,
+                        child: CachedNetworkImage(
+                          imageUrl: story.thumbnail!,
+                          fit: BoxFit.cover,
+                          placeholder: (_, _) =>
+                              Container(color: AppColors.sunk),
+                          errorWidget: (_, _, _) =>
+                              Container(color: AppColors.brandDark),
                         ),
                       ),
-                      if (length != null)
-                        Positioned(
-                          right: 6,
-                          bottom: 6,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(4)),
-                            child: Text(length, style: const TextStyle(fontFamily: 'NotoSansBengali', fontSize: 11, color: Colors.white)),
+                    ),
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0x00000000),
+                            Color(0x22000000),
+                            Color(0xD9000000),
+                          ],
+                          stops: [0, 0.4, 1],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE62117),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.play_arrow_rounded,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              'ভিডিও',
+                              style: TextStyle(
+                                fontFamily: 'NotoSansBengali',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (length != null)
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            length,
+                            style: const TextStyle(
+                              fontFamily: 'NotoSansBengali',
+                              fontSize: 11,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                    Positioned(
+                      left: 12,
+                      right: 12,
+                      bottom: 10,
+                      child: Text(
+                        story.lead.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansBengali',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-                  child: Text(
-                    story.lead.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(height: 1.35),
-                  ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 9),
+              ),
+              // The footer takes the rest of the card, its line centred in it.
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Row(
                     children: [
-                      if (person != null)
-                        Flexible(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => _openMember(context, person.slug),
-                            child: PartyChip(abbr: person.party, label: person.name, compact: true),
-                          ),
-                        )
-                      else
-                        Flexible(
-                          child: Text(
-                            story.lead.source,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall,
+                      Expanded(
+                        child: person != null
+                            ? GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => _openMember(context, person.slug),
+                                child: PartyChip(
+                                  abbr: person.party,
+                                  label: person.name,
+                                  compact: true,
+                                ),
+                              )
+                            : Text(
+                                story.lead.source,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.labelSmall,
+                              ),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          story.lead.source,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            fontFamily: 'NotoSansBengali',
+                            fontSize: 11.5,
+                            color: AppColors.muted,
                           ),
                         ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -19,7 +19,10 @@ const kSourcesLine =
 
 /// The official sites the information comes from, as the reader can check them.
 const kOfficialSources = <({String label, String url})>[
-  (label: 'বাংলাদেশ জাতীয় সংসদ: parliament.gov.bd', url: 'https://www.parliament.gov.bd'),
+  (
+    label: 'বাংলাদেশ জাতীয় সংসদ: parliament.gov.bd',
+    url: 'https://www.parliament.gov.bd',
+  ),
   (label: 'বাংলাদেশ নির্বাচন কমিশন: ecs.gov.bd', url: 'https://www.ecs.gov.bd'),
   (label: 'মন্ত্রিপরিষদ বিভাগ: cabinet.gov.bd', url: 'https://cabinet.gov.bd'),
 ];
@@ -36,48 +39,91 @@ class DisclaimerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.warnSoft,
-        borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-        border: Border.all(color: const Color(0xFFEAD9A8)),
-      ),
+      decoration: AppDecor.card(),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.info_outline_rounded, size: 20, color: AppColors.warn),
-              const SizedBox(width: 8),
-              Expanded(child: Text('সরকারি অ্যাপ নয়', style: Theme.of(context).textTheme.titleMedium)),
-            ],
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+            color: AppColors.warnSoft,
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: Icon(
+                    Icons.verified_user_outlined,
+                    size: 19,
+                    color: AppColors.warn,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'স্বাধীন, বেসরকারি তথ্যসেবা। সংসদ, নির্বাচন কমিশন বা সরকারের কোনো দপ্তরের অ্যাপ নয়।',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansBengali',
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.ink,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(kNotOfficial, style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          Text(kSourcesLine, style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 10),
-          Text('সরকারি সূত্র', style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 4),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(14, 10, 14, 2),
+            child: Text(
+              'তথ্যের সরকারি সূত্র',
+              style: TextStyle(
+                fontFamily: 'NotoSansBengali',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.muted,
+              ),
+            ),
+          ),
           for (final s in kOfficialSources)
             InkWell(
               onTap: () => _open(s.url),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 9,
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.brand),
-                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.account_balance_outlined,
+                      size: 17,
+                      color: AppColors.brand,
+                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         s.label,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.brand, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansBengali',
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink,
+                        ),
                       ),
+                    ),
+                    const Icon(
+                      Icons.open_in_new_rounded,
+                      size: 16,
+                      color: AppColors.muted,
                     ),
                   ],
                 ),
               ),
             ),
+          const SizedBox(height: 6),
         ],
       ),
     );
@@ -93,7 +139,13 @@ Future<void> showDisclaimerOnce(BuildContext context) async {
     context: context,
     barrierDismissible: false,
     builder: (context) => AlertDialog(
-      title: const Text('আমার এমপি সম্পর্কে', style: TextStyle(fontFamily: 'NotoSansBengali', fontWeight: FontWeight.w700)),
+      title: const Text(
+        'আমার এমপি সম্পর্কে',
+        style: TextStyle(
+          fontFamily: 'NotoSansBengali',
+          fontWeight: FontWeight.w700,
+        ),
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -109,7 +161,13 @@ Future<void> showDisclaimerOnce(BuildContext context) async {
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppColors.brand),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('বুঝেছি', style: TextStyle(fontFamily: 'NotoSansBengali', fontWeight: FontWeight.w700)),
+          child: const Text(
+            'বুঝেছি',
+            style: TextStyle(
+              fontFamily: 'NotoSansBengali',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
       ],
     ),

@@ -16,7 +16,12 @@ class AdviserScreen extends StatefulWidget {
   final String slug;
   final String nameBn;
   final String? photoUrl;
-  const AdviserScreen({super.key, required this.slug, required this.nameBn, this.photoUrl});
+  const AdviserScreen({
+    super.key,
+    required this.slug,
+    required this.nameBn,
+    this.photoUrl,
+  });
 
   @override
   State<AdviserScreen> createState() => _AdviserScreenState();
@@ -38,7 +43,10 @@ class _AdviserScreenState extends State<AdviserScreen> {
             tooltip: 'শেয়ার',
             icon: const Icon(Icons.share_outlined),
             onPressed: () => SharePlus.instance.share(
-              ShareParams(text: '${widget.nameBn}\n${Api.base}/ministers/${widget.slug}', subject: widget.nameBn),
+              ShareParams(
+                text: '${widget.nameBn}\n${Api.base}/ministers/${widget.slug}',
+                subject: widget.nameBn,
+              ),
             ),
           ),
         ],
@@ -47,25 +55,35 @@ class _AdviserScreenState extends State<AdviserScreen> {
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.brand));
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.brand),
+            );
           }
           if (snap.hasError || !snap.hasData) {
             return ErrorView(
               message: '${snap.error ?? 'তথ্য পাওয়া যায়নি'}',
-              onRetry: () => setState(() => _future = Api.instance.adviser(widget.slug)),
+              onRetry: () =>
+                  setState(() => _future = Api.instance.adviser(widget.slug)),
             );
           }
           final a = snap.data!;
           final facts = <({String label, String value})>[
             if (a.rankBn != null) (label: 'পদমর্যাদা', value: a.rankBn!),
-            if (a.partyRoleBn != null) (label: 'দলীয় পদ', value: a.partyRoleBn!),
+            if (a.partyRoleBn != null)
+              (label: 'দলীয় পদ', value: a.partyRoleBn!),
             if (a.professionBn != null) (label: 'পেশা', value: a.professionBn!),
             if (a.educationBn != null) (label: 'শিক্ষা', value: a.educationBn!),
-            if (a.birthPlaceBn != null) (label: 'জন্মস্থান', value: a.birthPlaceBn!),
+            if (a.birthPlaceBn != null)
+              (label: 'জন্মস্থান', value: a.birthPlaceBn!),
           ];
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(AppSizes.pagePad, 8, AppSizes.pagePad, 32),
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.pagePad,
+              8,
+              AppSizes.pagePad,
+              32,
+            ),
             children: [
               _header(context, a),
               const SizedBox(height: 16),
@@ -99,10 +117,19 @@ class _AdviserScreenState extends State<AdviserScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       initialOf(a.nameBn),
-                      style: const TextStyle(fontFamily: 'NotoSansBengali', fontSize: 30, fontWeight: FontWeight.w700, color: AppColors.brand),
+                      style: const TextStyle(
+                        fontFamily: 'NotoSansBengali',
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.brand,
+                      ),
                     ),
                   )
-                : CachedNetworkImage(imageUrl: photo, fit: BoxFit.cover, errorWidget: (_, _, _) => Container(color: AppColors.sunk)),
+                : CachedNetworkImage(
+                    imageUrl: photo,
+                    fit: BoxFit.cover,
+                    errorWidget: (_, _, _) => Container(color: AppColors.sunk),
+                  ),
           ),
         ),
         const SizedBox(width: 14),
@@ -154,9 +181,16 @@ class _AdviserScreenState extends State<AdviserScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(p.ministryBn ?? p.title, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                        Text(
+                          p.ministryBn ?? p.title,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
                         if (dateBn(p.fromDate) != null)
-                          Text('${dateBn(p.fromDate)} থেকে', style: Theme.of(context).textTheme.labelSmall),
+                          Text(
+                            '${dateBn(p.fromDate)} থেকে',
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                       ],
                     ),
                   ),

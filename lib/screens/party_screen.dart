@@ -15,10 +15,11 @@ class PartyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final members = (Api.instance.cached?.members ?? const <MemberBrief>[])
-        .where((m) => m.party == party.abbr)
-        .toList()
-      ..sort((a, b) => (a.seatNo ?? 9999).compareTo(b.seatNo ?? 9999));
+    final members =
+        (Api.instance.cached?.members ?? const <MemberBrief>[])
+            .where((m) => m.party == party.abbr)
+            .toList()
+          ..sort((a, b) => (a.seatNo ?? 9999).compareTo(b.seatNo ?? 9999));
     final colour = AppColors.party(party.abbr);
 
     return Scaffold(
@@ -30,7 +31,12 @@ class PartyScreen extends StatelessWidget {
               body: 'এই দলের কোনো নির্বাচিত সদস্য তালিকায় নেই।',
             )
           : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(AppSizes.pagePad, 12, AppSizes.pagePad, 28),
+              padding: const EdgeInsets.fromLTRB(
+                AppSizes.pagePad,
+                12,
+                AppSizes.pagePad,
+                28,
+              ),
               itemCount: members.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, i) {
@@ -44,7 +50,14 @@ class PartyScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Container(width: 14, height: 14, decoration: BoxDecoration(color: colour, shape: BoxShape.circle)),
+                        Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: colour,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -59,7 +72,9 @@ class PartyScreen extends StatelessWidget {
                 final m = members[i - 1];
                 return MemberTile(
                   member: m,
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => MemberScreen(member: m))),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => MemberScreen(member: m)),
+                  ),
                 );
               },
             ),

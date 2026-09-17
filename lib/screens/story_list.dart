@@ -34,15 +34,25 @@ class StoryList extends StatelessWidget {
       future: future,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.brand));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.brand),
+          );
         }
         if (snap.hasError) {
           return ErrorView(message: '${snap.error}', onRetry: onRetry);
         }
         final stories = snap.data ?? const <Story>[];
         final list = ListView.separated(
-          padding: const EdgeInsets.fromLTRB(AppSizes.pagePad, 12, AppSizes.pagePad, 28),
-          itemCount: stories.length + (header != null ? 1 : 0) + (stories.isEmpty ? 1 : 0),
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.pagePad,
+            12,
+            AppSizes.pagePad,
+            28,
+          ),
+          itemCount:
+              stories.length +
+              (header != null ? 1 : 0) +
+              (stories.isEmpty ? 1 : 0),
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) {
             if (header != null && i == 0) return header!;
@@ -50,20 +60,31 @@ class StoryList extends StatelessWidget {
             if (stories.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.only(top: 40),
-                child: EmptyState(icon: Icons.article_outlined, title: emptyTitle, body: emptyBody),
+                child: EmptyState(
+                  icon: Icons.article_outlined,
+                  title: emptyTitle,
+                  body: emptyBody,
+                ),
               );
             }
             return StoryCard(story: stories[index]);
           },
         );
-        return onRefresh == null ? list : RefreshIndicator(color: AppColors.brand, onRefresh: onRefresh!, child: list);
+        return onRefresh == null
+            ? list
+            : RefreshIndicator(
+                color: AppColors.brand,
+                onRefresh: onRefresh!,
+                child: list,
+              );
       },
     );
   }
 }
 
-/// One headline: the outlet, the picture where the outlet published one, the
-/// members it names, and the other outlets that ran the same story.
+/// One headline: the outlet and when, the headline, the members it names, and
+/// the outlet's picture on the right where it published one. A picture that
+/// will not load shows the outlet's initial instead of an empty grey box.
 class StoryCard extends StatelessWidget {
   final Story story;
   const StoryCard({super.key, required this.story});
@@ -79,74 +100,135 @@ class StoryCard extends StatelessWidget {
     final when = shortDateBn(story.date, label: story.dateLabel);
     final length = durationBn(story.durationSeconds);
 
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-      child: InkWell(
-        onTap: () => _open(story.lead.url),
-        borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-            border: Border.all(color: AppColors.rule),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (story.thumbnail != null || story.isVideo) ...[
-                _thumbnail(length),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        if (story.isVideo) ...[
-                          const Pill('ভিডিও'),
-                          const SizedBox(width: 6),
+    return Container(
+      decoration: AppDecor.card(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _open(story.lead.url),
+          borderRadius: BorderRadius.circular(AppSizes.radiusCard),
+          child: Padding(
+            padding: const EdgeInsets.all(13),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          if (story.isVideo) ...[
+                            const Icon(
+                              Icons.play_circle_fill_rounded,
+                              size: 15,
+                              color: Color(0xFFE62117),
+                            ),
+                            const SizedBox(width: 5),
+                          ],
+                          Flexible(
+                            child: Text(
+                              story.lead.source,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: 'NotoSansBengali',
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.brand,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                          if (when.isNotEmpty) ...[
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              child: Icon(
+                                Icons.circle,
+                                size: 3.5,
+                                color: AppColors.muted,
+                              ),
+                            ),
+                            Text(
+                              when,
+                              style: const TextStyle(
+                                fontFamily: 'NotoSansBengali',
+                                fontSize: 12,
+                                color: AppColors.muted,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
                         ],
-                        Expanded(
-                          child: Text(
-                            story.lead.source,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        story.lead.title,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansBengali',
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                          height: 1.45,
+                        ),
+                      ),
+                      if (story.members.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 4,
+                          children: [
+                            for (final m in story.members.take(2))
+                              PartyChip(
+                                abbr: m.party,
+                                label: m.name,
+                                compact: true,
+                              ),
+                          ],
+                        ),
+                      ],
+                      if (story.also.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          'আরও ${bn(story.also.length)}টি সংবাদমাধ্যমে',
+                          style: const TextStyle(
+                            fontFamily: 'NotoSansBengali',
+                            fontSize: 12,
+                            color: AppColors.muted,
                           ),
                         ),
-                        if (when.isNotEmpty)
-                          Text(when, style: Theme.of(context).textTheme.labelSmall),
                       ],
-                    ),
-                    const SizedBox(height: 7),
-                    Text(
-                      story.lead.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.4),
-                    ),
-                    if (story.members.isNotEmpty) ...[
-                      const SizedBox(height: 9),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        children: [
-                          for (final m in story.members.take(3)) PartyChip(abbr: m.party, label: m.name, compact: true),
-                        ],
-                      ),
                     ],
-                    if (story.also.isNotEmpty) ...[
-                      const SizedBox(height: 9),
-                      Text(
-                        'একই খবর আরও ${bn(story.also.length)}টি সংবাদমাধ্যমে',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                if (story.thumbnail != null || story.isVideo) ...[
+                  const SizedBox(width: 12),
+                  _thumbnail(length),
+                ],
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _monogram() {
+    final letter = story.lead.source.isEmpty
+        ? '•'
+        : story.lead.source.characters.first;
+    return Container(
+      color: AppColors.brandSoft,
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: const TextStyle(
+          fontFamily: 'NotoSansBengali',
+          fontSize: 26,
+          fontWeight: FontWeight.w700,
+          color: AppColors.brand,
         ),
       ),
     );
@@ -154,10 +236,10 @@ class StoryCard extends StatelessWidget {
 
   Widget _thumbnail(String? length) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: SizedBox(
-        width: 104,
-        height: 68,
+        width: 96,
+        height: 76,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -166,19 +248,26 @@ class StoryCard extends StatelessWidget {
                 imageUrl: story.thumbnail!,
                 fit: BoxFit.cover,
                 placeholder: (_, _) => Container(color: AppColors.sunk),
-                errorWidget: (_, _, _) => Container(color: AppColors.sunk),
+                errorWidget: (_, _, _) => _monogram(),
               )
             else
-              Container(color: AppColors.sunk),
+              _monogram(),
             if (story.isVideo)
               Container(
-                color: Colors.black.withValues(alpha: 0.22),
+                color: Colors.black.withValues(alpha: 0.18),
                 alignment: Alignment.center,
                 child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.92), shape: BoxShape.circle),
-                  child: const Icon(Icons.play_arrow_rounded, size: 20, color: AppColors.ink),
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    size: 19,
+                    color: Color(0xFFE62117),
+                  ),
                 ),
               ),
             if (length != null)
@@ -186,11 +275,21 @@ class StoryCard extends StatelessWidget {
                 right: 4,
                 bottom: 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                  decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(4)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   child: Text(
                     length,
-                    style: const TextStyle(fontFamily: 'NotoSansBengali', fontSize: 11, color: Colors.white),
+                    style: const TextStyle(
+                      fontFamily: 'NotoSansBengali',
+                      fontSize: 11,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

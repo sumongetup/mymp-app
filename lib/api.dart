@@ -21,9 +21,18 @@ class Api {
 
   final _memberCache = <String, MemberDetail>{};
 
-  Future<Map<String, dynamic>> _getJson(String path, {Duration timeout = const Duration(seconds: 20)}) async {
+  Future<Map<String, dynamic>> _getJson(
+    String path, {
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
     final res = await http
-        .get(Uri.parse('$base$path'), headers: const {'accept': 'application/json', 'user-agent': _userAgent})
+        .get(
+          Uri.parse('$base$path'),
+          headers: const {
+            'accept': 'application/json',
+            'user-agent': _userAgent,
+          },
+        )
         .timeout(timeout);
     if (res.statusCode != 200) {
       throw ApiException('সার্ভার সাড়া দেয়নি (${res.statusCode})');
@@ -44,7 +53,9 @@ class Api {
       final saved = prefs.getString('bootstrap');
       if (saved != null) {
         try {
-          _bootstrap = Bootstrap.fromJson(jsonDecode(saved) as Map<String, dynamic>);
+          _bootstrap = Bootstrap.fromJson(
+            jsonDecode(saved) as Map<String, dynamic>,
+          );
           unawaited(_refreshBootstrap(prefs));
           return _bootstrap!;
         } catch (_) {
@@ -115,7 +126,8 @@ class Api {
     final json = await _getJson('/api/feed/$slug');
     final items = <Story>[];
     for (final key in const ['pinned', 'items']) {
-      for (final raw in (json[key] as List? ?? []).whereType<Map<String, dynamic>>()) {
+      for (final raw
+          in (json[key] as List? ?? []).whereType<Map<String, dynamic>>()) {
         items.add(feedEntryToStory(raw));
       }
     }

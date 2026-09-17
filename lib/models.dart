@@ -5,7 +5,8 @@ library;
 String? _s(dynamic v) => v is String && v.isNotEmpty ? v : null;
 int? _i(dynamic v) => v is num ? v.toInt() : null;
 bool _b(dynamic v) => v == true;
-List<String> _strings(dynamic v) => v is List ? v.whereType<String>().toList() : const [];
+List<String> _strings(dynamic v) =>
+    v is List ? v.whereType<String>().toList() : const [];
 
 class MemberBrief {
   final String id;
@@ -39,20 +40,20 @@ class MemberBrief {
   });
 
   factory MemberBrief.fromJson(Map<String, dynamic> j) => MemberBrief(
-        id: j['id'] as String? ?? '',
-        slug: j['slug'] as String? ?? '',
-        nameBn: j['nameBn'] as String? ?? '',
-        nameEn: _s(j['nameEn']),
-        photoUrl: _s(j['photoUrl']),
-        gender: _s(j['gender']),
-        party: _s(j['party']),
-        partyBn: _s(j['partyBn']),
-        seatNo: _i(j['seatNo']),
-        seatBn: _s(j['seatBn']),
-        districtBn: _s(j['districtBn']),
-        officeBn: _s(j['officeBn']),
-        reserved: _b(j['reserved']),
-      );
+    id: j['id'] as String? ?? '',
+    slug: j['slug'] as String? ?? '',
+    nameBn: j['nameBn'] as String? ?? '',
+    nameEn: _s(j['nameEn']),
+    photoUrl: _s(j['photoUrl']),
+    gender: _s(j['gender']),
+    party: _s(j['party']),
+    partyBn: _s(j['partyBn']),
+    seatNo: _i(j['seatNo']),
+    seatBn: _s(j['seatBn']),
+    districtBn: _s(j['districtBn']),
+    officeBn: _s(j['officeBn']),
+    reserved: _b(j['reserved']),
+  );
 
   /// "ঢাকা-১৭" for a territorial member, "সংরক্ষিত আসন" for a reserved one.
   String get seatLabel => seatBn ?? 'সংরক্ষিত আসন';
@@ -76,13 +77,17 @@ class PartyBrief {
   });
 
   factory PartyBrief.fromJson(Map<String, dynamic> j) => PartyBrief(
-        abbr: j['abbr'] as String? ?? '',
-        slug: j['slug'] as String? ?? '',
-        nameBn: j['nameBn'] as String? ?? j['abbr'] as String? ?? '',
-        shortBn: j['shortBn'] as String? ?? j['nameBn'] as String? ?? j['abbr'] as String? ?? '',
-        colorHex: j['color'] as String? ?? '#9A5FC7',
-        seats: _i(j['seats']) ?? 0,
-      );
+    abbr: j['abbr'] as String? ?? '',
+    slug: j['slug'] as String? ?? '',
+    nameBn: j['nameBn'] as String? ?? j['abbr'] as String? ?? '',
+    shortBn:
+        j['shortBn'] as String? ??
+        j['nameBn'] as String? ??
+        j['abbr'] as String? ??
+        '',
+    colorHex: j['color'] as String? ?? '#9A5FC7',
+    seats: _i(j['seats']) ?? 0,
+  );
 }
 
 class Bootstrap {
@@ -101,18 +106,18 @@ class Bootstrap {
   });
 
   factory Bootstrap.fromJson(Map<String, dynamic> j) => Bootstrap(
-        version: j['version'] as String? ?? '',
-        parliamentNo: _i(j['parliamentNo']) ?? 13,
-        members: (j['members'] as List? ?? [])
-            .whereType<Map<String, dynamic>>()
-            .map(MemberBrief.fromJson)
-            .toList(),
-        parties: (j['parties'] as List? ?? [])
-            .whereType<Map<String, dynamic>>()
-            .map(PartyBrief.fromJson)
-            .toList(),
-        districts: _strings(j['districts']),
-      );
+    version: j['version'] as String? ?? '',
+    parliamentNo: _i(j['parliamentNo']) ?? 13,
+    members: (j['members'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(MemberBrief.fromJson)
+        .toList(),
+    parties: (j['parties'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(PartyBrief.fromJson)
+        .toList(),
+    districts: _strings(j['districts']),
+  );
 }
 
 class CommitteeRef {
@@ -121,8 +126,11 @@ class CommitteeRef {
   final String? role;
   const CommitteeRef({required this.slug, required this.nameBn, this.role});
 
-  factory CommitteeRef.fromJson(Map<String, dynamic> j) =>
-      CommitteeRef(slug: j['slug'] as String? ?? '', nameBn: j['nameBn'] as String? ?? '', role: _s(j['role']));
+  factory CommitteeRef.fromJson(Map<String, dynamic> j) => CommitteeRef(
+    slug: j['slug'] as String? ?? '',
+    nameBn: j['nameBn'] as String? ?? '',
+    role: _s(j['role']),
+  );
 }
 
 class PriorTerm {
@@ -132,10 +140,10 @@ class PriorTerm {
   const PriorTerm({required this.parliamentNo, this.seatBn, this.partyAbbr});
 
   factory PriorTerm.fromJson(Map<String, dynamic> j) => PriorTerm(
-        parliamentNo: _i(j['parliamentNo']) ?? _i(j['no']) ?? 0,
-        seatBn: _s(j['seatBn']) ?? _s(j['seatNameBn']),
-        partyAbbr: _s(j['partyAbbr']) ?? _s(j['party']),
-      );
+    parliamentNo: _i(j['parliamentNo']) ?? _i(j['no']) ?? 0,
+    seatBn: _s(j['seatBn']) ?? _s(j['seatNameBn']),
+    partyAbbr: _s(j['partyAbbr']) ?? _s(j['party']),
+  );
 }
 
 class SocialLink {
@@ -143,8 +151,10 @@ class SocialLink {
   final String url;
   const SocialLink({required this.label, required this.url});
 
-  factory SocialLink.fromJson(Map<String, dynamic> j) =>
-      SocialLink(label: j['label'] as String? ?? j['key'] as String? ?? '', url: j['url'] as String? ?? '');
+  factory SocialLink.fromJson(Map<String, dynamic> j) => SocialLink(
+    label: j['label'] as String? ?? j['key'] as String? ?? '',
+    url: j['url'] as String? ?? '',
+  );
 }
 
 class MemberDetail {
@@ -195,28 +205,37 @@ class MemberDetail {
   });
 
   factory MemberDetail.fromJson(Map<String, dynamic> j) => MemberDetail(
-        brief: MemberBrief.fromJson(j),
-        professionBn: _s(j['professionBn']),
-        educationBn: _s(j['educationBn']),
-        birthPlaceBn: _s(j['birthPlaceBn']),
-        dateOfBirth: _s(j['dateOfBirth']),
-        fatherBn: _s(j['fatherBn']),
-        motherBn: _s(j['motherBn']),
-        isFreedomFighter: _b(j['isFreedomFighter']),
-        email: _s(j['email']),
-        bioBn: _s(j['bioBn']),
-        summaryBn: _s(j['summaryBn']),
-        bioSources: _strings(j['bioSources']),
-        partyNameBn: _s(j['partyNameBn']),
-        partyRoleBn: _s(j['partyRoleBn']),
-        ministryBn: _s(j['ministryBn']),
-        termsCount: _i(j['termsCount']),
-        resignedOn: _s(j['resignedOn']),
-        offices: _strings(j['offices']),
-        socials: (j['socials'] as List? ?? []).whereType<Map<String, dynamic>>().map(SocialLink.fromJson).toList(),
-        committees: (j['committees'] as List? ?? []).whereType<Map<String, dynamic>>().map(CommitteeRef.fromJson).toList(),
-        priorTerms: (j['priorTerms'] as List? ?? []).whereType<Map<String, dynamic>>().map(PriorTerm.fromJson).toList(),
-      );
+    brief: MemberBrief.fromJson(j),
+    professionBn: _s(j['professionBn']),
+    educationBn: _s(j['educationBn']),
+    birthPlaceBn: _s(j['birthPlaceBn']),
+    dateOfBirth: _s(j['dateOfBirth']),
+    fatherBn: _s(j['fatherBn']),
+    motherBn: _s(j['motherBn']),
+    isFreedomFighter: _b(j['isFreedomFighter']),
+    email: _s(j['email']),
+    bioBn: _s(j['bioBn']),
+    summaryBn: _s(j['summaryBn']),
+    bioSources: _strings(j['bioSources']),
+    partyNameBn: _s(j['partyNameBn']),
+    partyRoleBn: _s(j['partyRoleBn']),
+    ministryBn: _s(j['ministryBn']),
+    termsCount: _i(j['termsCount']),
+    resignedOn: _s(j['resignedOn']),
+    offices: _strings(j['offices']),
+    socials: (j['socials'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(SocialLink.fromJson)
+        .toList(),
+    committees: (j['committees'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(CommitteeRef.fromJson)
+        .toList(),
+    priorTerms: (j['priorTerms'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(PriorTerm.fromJson)
+        .toList(),
+  );
 }
 
 class CabinetPost {
@@ -239,16 +258,19 @@ class CabinetPost {
   });
 
   factory CabinetPost.fromJson(Map<String, dynamic> j) => CabinetPost(
-        title: j['title'] as String? ?? '',
-        ministryBn: _s(j['ministryBn']),
-        holderBn: j['holderBn'] as String? ?? '',
-        member: j['member'] is Map<String, dynamic> ? MemberBrief.fromJson(j['member'] as Map<String, dynamic>) : null,
-        photoUrl: _s(j['photoUrl']),
-        adviserSlug: _s(j['adviserSlug']),
-      );
+    title: j['title'] as String? ?? '',
+    ministryBn: _s(j['ministryBn']),
+    holderBn: j['holderBn'] as String? ?? '',
+    member: j['member'] is Map<String, dynamic>
+        ? MemberBrief.fromJson(j['member'] as Map<String, dynamic>)
+        : null,
+    photoUrl: _s(j['photoUrl']),
+    adviserSlug: _s(j['adviserSlug']),
+  );
 
   /// The name without the "জনাব" the cabinet list puts before it.
-  String get plainHolder => holderBn.replaceFirst(RegExp(r'^জনাব\s+'), '').trim();
+  String get plainHolder =>
+      holderBn.replaceFirst(RegExp(r'^জনাব\s+'), '').trim();
 }
 
 class AdviserPost {
@@ -257,8 +279,11 @@ class AdviserPost {
   final String? fromDate;
   const AdviserPost({required this.title, this.ministryBn, this.fromDate});
 
-  factory AdviserPost.fromJson(Map<String, dynamic> j) =>
-      AdviserPost(title: j['title'] as String? ?? '', ministryBn: _s(j['ministryBn']), fromDate: _s(j['fromDate']));
+  factory AdviserPost.fromJson(Map<String, dynamic> j) => AdviserPost(
+    title: j['title'] as String? ?? '',
+    ministryBn: _s(j['ministryBn']),
+    fromDate: _s(j['fromDate']),
+  );
 }
 
 /// A cabinet member from outside parliament: an adviser to the Prime Minister,
@@ -293,32 +318,39 @@ class AdviserDetail {
   });
 
   factory AdviserDetail.fromJson(Map<String, dynamic> j) => AdviserDetail(
-        slug: j['slug'] as String? ?? '',
-        nameBn: j['nameBn'] as String? ?? '',
-        roleBn: j['roleBn'] as String? ?? 'প্রধানমন্ত্রীর উপদেষ্টা',
-        rankBn: _s(j['rankBn']),
-        bioBn: j['bioBn'] as String? ?? '',
-        professionBn: _s(j['professionBn']),
-        educationBn: _s(j['educationBn']),
-        birthPlaceBn: _s(j['birthPlaceBn']),
-        partyRoleBn: _s(j['partyRoleBn']),
-        photoUrl: _s(j['photoUrl']),
-        sources: _strings(j['sources']),
-        posts: (j['posts'] as List? ?? []).whereType<Map<String, dynamic>>().map(AdviserPost.fromJson).toList(),
-      );
+    slug: j['slug'] as String? ?? '',
+    nameBn: j['nameBn'] as String? ?? '',
+    roleBn: j['roleBn'] as String? ?? 'প্রধানমন্ত্রীর উপদেষ্টা',
+    rankBn: _s(j['rankBn']),
+    bioBn: j['bioBn'] as String? ?? '',
+    professionBn: _s(j['professionBn']),
+    educationBn: _s(j['educationBn']),
+    birthPlaceBn: _s(j['birthPlaceBn']),
+    partyRoleBn: _s(j['partyRoleBn']),
+    photoUrl: _s(j['photoUrl']),
+    sources: _strings(j['sources']),
+    posts: (j['posts'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(AdviserPost.fromJson)
+        .toList(),
+  );
 }
 
 class StoryLink {
   final String title;
   final String source;
   final String url;
-  const StoryLink({required this.title, required this.source, required this.url});
+  const StoryLink({
+    required this.title,
+    required this.source,
+    required this.url,
+  });
 
   factory StoryLink.fromJson(Map<String, dynamic> j) => StoryLink(
-        title: j['title'] as String? ?? '',
-        source: j['source'] as String? ?? '',
-        url: j['url'] as String? ?? '',
-      );
+    title: j['title'] as String? ?? '',
+    source: j['source'] as String? ?? '',
+    url: j['url'] as String? ?? '',
+  );
 }
 
 class StoryMember {
@@ -327,8 +359,11 @@ class StoryMember {
   final String? party;
   const StoryMember({required this.slug, required this.name, this.party});
 
-  factory StoryMember.fromJson(Map<String, dynamic> j) =>
-      StoryMember(slug: j['slug'] as String? ?? '', name: j['name'] as String? ?? '', party: _s(j['party']));
+  factory StoryMember.fromJson(Map<String, dynamic> j) => StoryMember(
+    slug: j['slug'] as String? ?? '',
+    name: j['name'] as String? ?? '',
+    party: _s(j['party']),
+  );
 }
 
 class Story {
@@ -360,7 +395,9 @@ class Story {
     final people = <StoryMember>[];
     final list = j['members'];
     if (list is List) {
-      people.addAll(list.whereType<Map<String, dynamic>>().map(StoryMember.fromJson));
+      people.addAll(
+        list.whereType<Map<String, dynamic>>().map(StoryMember.fromJson),
+      );
     } else if (j['member'] is Map<String, dynamic>) {
       people.add(StoryMember.fromJson(j['member'] as Map<String, dynamic>));
     }
@@ -368,8 +405,13 @@ class Story {
       id: j['id'] as String? ?? '',
       date: j['date'] as String? ?? '',
       dateLabel: j['dateLabel'] as String? ?? '',
-      lead: StoryLink.fromJson((j['lead'] as Map<String, dynamic>?) ?? const {}),
-      also: (j['also'] as List? ?? []).whereType<Map<String, dynamic>>().map(StoryLink.fromJson).toList(),
+      lead: StoryLink.fromJson(
+        (j['lead'] as Map<String, dynamic>?) ?? const {},
+      ),
+      also: (j['also'] as List? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(StoryLink.fromJson)
+          .toList(),
       members: people,
       kind: j['kind'] as String? ?? 'news',
       thumbnail: _s(j['thumbnail']),

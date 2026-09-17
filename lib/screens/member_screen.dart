@@ -39,7 +39,9 @@ class _MemberScreenState extends State<MemberScreen> {
     _detail = Api.instance.member(widget.member.slug);
     _feed = Api.instance.memberFeed(widget.member.slug);
     _scroll.addListener(() {
-      final show = _scroll.hasClients && _scroll.offset > _heroHeight - kToolbarHeight - 40;
+      final show =
+          _scroll.hasClients &&
+          _scroll.offset > _heroHeight - kToolbarHeight - 40;
       if (show != _barTitle) setState(() => _barTitle = show);
     });
   }
@@ -77,7 +79,8 @@ class _MemberScreenState extends State<MemberScreen> {
                   icon: const Icon(Icons.share_outlined),
                   onPressed: () => SharePlus.instance.share(
                     ShareParams(
-                      text: '${m.nameBn}, ${m.seatLabel}\n${Api.base}/mp/${m.slug}',
+                      text:
+                          '${m.nameBn}, ${m.seatLabel}\n${Api.base}/mp/${m.slug}',
                       subject: m.nameBn,
                     ),
                   ),
@@ -106,7 +109,8 @@ class _MemberScreenState extends State<MemberScreen> {
                   final top = MediaQuery.paddingOf(context).top;
                   final collapsed = kToolbarHeight + kTextTabBarHeight + top;
                   final open = _heroHeight + top;
-                  final t = ((box.maxHeight - collapsed) / (open - collapsed)).clamp(0.0, 1.0);
+                  final t = ((box.maxHeight - collapsed) / (open - collapsed))
+                      .clamp(0.0, 1.0);
                   return FlexibleSpaceBar(
                     collapseMode: CollapseMode.parallax,
                     background: Opacity(
@@ -125,9 +129,20 @@ class _MemberScreenState extends State<MemberScreen> {
                 indicatorWeight: 3,
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
-                labelStyle: const TextStyle(fontFamily: 'NotoSansBengali', fontSize: 14.5, fontWeight: FontWeight.w700),
-                unselectedLabelStyle: const TextStyle(fontFamily: 'NotoSansBengali', fontSize: 14.5, fontWeight: FontWeight.w500),
-                tabs: const [Tab(text: 'পরিচিতি'), Tab(text: 'সংবাদ ও ভিডিও')],
+                labelStyle: const TextStyle(
+                  fontFamily: 'NotoSansBengali',
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w700,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontFamily: 'NotoSansBengali',
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w500,
+                ),
+                tabs: const [
+                  Tab(text: 'পরিচিতি'),
+                  Tab(text: 'সংবাদ ও ভিডিও'),
+                ],
               ),
             ),
           ],
@@ -137,8 +152,10 @@ class _MemberScreenState extends State<MemberScreen> {
               StoryList(
                 future: _feed,
                 emptyTitle: 'এখনো কোনো সংবাদ যুক্ত হয়নি',
-                emptyBody: 'সংবাদমাধ্যমে ${m.nameBn}-এর নাম এলে তা এখানে দেখানো হবে।',
-                onRetry: () => setState(() => _feed = Api.instance.memberFeed(m.slug)),
+                emptyBody:
+                    'সংবাদমাধ্যমে ${m.nameBn}-এর নাম এলে তা এখানে দেখানো হবে।',
+                onRetry: () =>
+                    setState(() => _feed = Api.instance.memberFeed(m.slug)),
               ),
             ],
           ),
@@ -167,21 +184,32 @@ class _MemberScreenState extends State<MemberScreen> {
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.85), width: 3),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    width: 3,
+                  ),
                 ),
                 child: MemberAvatar(member: m, size: 104),
               ),
               const SizedBox(height: 12),
               if (m.officeBn != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(AppSizes.radiusPill),
                   ),
                   child: Text(
                     m.officeBn!,
-                    style: const TextStyle(fontFamily: 'NotoSansBengali', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+                    style: const TextStyle(
+                      fontFamily: 'NotoSansBengali',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               const SizedBox(height: 10),
@@ -225,32 +253,46 @@ class _MemberScreenState extends State<MemberScreen> {
       future: _detail,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.brand));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.brand),
+          );
         }
         if (snap.hasError || !snap.hasData) {
           return ErrorView(
             message: '${snap.error ?? 'তথ্য পাওয়া যায়নি'}',
-            onRetry: () => setState(() => _detail = Api.instance.member(widget.member.slug)),
+            onRetry: () => setState(
+              () => _detail = Api.instance.member(widget.member.slug),
+            ),
           );
         }
         final d = snap.data!;
         final facts = <({String label, String value})>[
           if (d.partyNameBn != null) (label: 'দল', value: d.partyNameBn!),
           if (d.partyRoleBn != null) (label: 'দলীয় পদ', value: d.partyRoleBn!),
-          if (d.ministryBn != null) (label: 'মন্ত্রণালয়', value: d.ministryBn!),
-          if (d.brief.districtBn != null) (label: 'জেলা', value: d.brief.districtBn!),
+          if (d.ministryBn != null)
+            (label: 'মন্ত্রণালয়', value: d.ministryBn!),
+          if (d.brief.districtBn != null)
+            (label: 'জেলা', value: d.brief.districtBn!),
           if (d.professionBn != null) (label: 'পেশা', value: d.professionBn!),
           if (d.educationBn != null) (label: 'শিক্ষা', value: d.educationBn!),
-          if (d.birthPlaceBn != null) (label: 'জন্মস্থান', value: d.birthPlaceBn!),
-          if (dateBn(d.dateOfBirth) != null) (label: 'জন্ম', value: dateBn(d.dateOfBirth)!),
+          if (d.birthPlaceBn != null)
+            (label: 'জন্মস্থান', value: d.birthPlaceBn!),
+          if (dateBn(d.dateOfBirth) != null)
+            (label: 'জন্ম', value: dateBn(d.dateOfBirth)!),
           if (d.fatherBn != null) (label: 'পিতা', value: d.fatherBn!),
           if (d.motherBn != null) (label: 'মাতা', value: d.motherBn!),
-          if (d.termsCount != null) (label: 'নির্বাচিত', value: '${bn(d.termsCount!)} বার'),
+          if (d.termsCount != null)
+            (label: 'নির্বাচিত', value: '${bn(d.termsCount!)} বার'),
           if (d.isFreedomFighter) (label: 'মুক্তিযোদ্ধা', value: 'হ্যাঁ'),
         ];
 
         return ListView(
-          padding: const EdgeInsets.fromLTRB(AppSizes.pagePad, 16, AppSizes.pagePad, 32),
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.pagePad,
+            16,
+            AppSizes.pagePad,
+            32,
+          ),
           children: [
             // The written biography, with its sources; the presiding officers'
             // one-paragraph summary from parliament when there is no biography.
@@ -278,9 +320,18 @@ class _MemberScreenState extends State<MemberScreen> {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(top: 4, right: 8),
-                              child: Icon(Icons.circle, size: 7, color: AppColors.brandRing),
+                              child: Icon(
+                                Icons.circle,
+                                size: 7,
+                                color: AppColors.brandRing,
+                              ),
                             ),
-                            Expanded(child: Text(c.nameBn, style: Theme.of(context).textTheme.bodyLarge)),
+                            Expanded(
+                              child: Text(
+                                c.nameBn,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
                             if (c.role != null) Pill(c.role!),
                           ],
                         ),
@@ -299,7 +350,9 @@ class _MemberScreenState extends State<MemberScreen> {
                   runSpacing: 8,
                   children: [
                     for (final t in d.priorTerms)
-                      Pill('${bn(t.parliamentNo)}ম সংসদ${t.seatBn != null ? ', ${t.seatBn}' : ''}'),
+                      Pill(
+                        '${bn(t.parliamentNo)}ম সংসদ${t.seatBn != null ? ', ${t.seatBn}' : ''}',
+                      ),
                   ],
                 ),
               ),
@@ -313,9 +366,19 @@ class _MemberScreenState extends State<MemberScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (d.email != null)
-                      _linkRow(context, Icons.mail_outline_rounded, d.email!, () => _open('mailto:${d.email}')),
+                      _linkRow(
+                        context,
+                        Icons.mail_outline_rounded,
+                        d.email!,
+                        () => _open('mailto:${d.email}'),
+                      ),
                     for (final s in d.socials)
-                      _linkRow(context, Icons.open_in_new_rounded, s.label, () => _open(s.url)),
+                      _linkRow(
+                        context,
+                        Icons.open_in_new_rounded,
+                        s.label,
+                        () => _open(s.url),
+                      ),
                   ],
                 ),
               ),
@@ -324,10 +387,18 @@ class _MemberScreenState extends State<MemberScreen> {
             Center(
               child: TextButton.icon(
                 onPressed: () => _open('${Api.base}/mp/${d.brief.slug}'),
-                icon: const Icon(Icons.public_rounded, size: 18, color: AppColors.brand),
+                icon: const Icon(
+                  Icons.public_rounded,
+                  size: 18,
+                  color: AppColors.brand,
+                ),
                 label: const Text(
                   'ওয়েবসাইটে দেখুন',
-                  style: TextStyle(fontFamily: 'NotoSansBengali', fontWeight: FontWeight.w600, color: AppColors.brand),
+                  style: TextStyle(
+                    fontFamily: 'NotoSansBengali',
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.brand,
+                  ),
                 ),
               ),
             ),
@@ -364,7 +435,12 @@ class _MemberScreenState extends State<MemberScreen> {
     );
   }
 
-  Widget _linkRow(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+  Widget _linkRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -375,9 +451,18 @@ class _MemberScreenState extends State<MemberScreen> {
             Icon(icon, size: 18, color: AppColors.brand),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyLarge),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
-            const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.muted),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: AppColors.muted,
+            ),
           ],
         ),
       ),

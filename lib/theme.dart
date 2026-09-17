@@ -36,18 +36,53 @@ class AppColors {
 
 /// Corner radii and spacing, named rather than sprinkled as numbers.
 class AppSizes {
-  static const radiusCard = 14.0;
+  static const radiusCard = 16.0;
   static const radiusPill = 999.0;
   static const gap = 12.0;
   static const pagePad = 16.0;
+}
+
+/// Surfaces: a white card lifted off the page by a soft shadow and a hairline,
+/// the look the website's cards have.
+class AppDecor {
+  static const shadow = [
+    BoxShadow(color: Color(0x0D17201B), blurRadius: 2, offset: Offset(0, 1)),
+    BoxShadow(color: Color(0x0F17201B), blurRadius: 16, offset: Offset(0, 6)),
+  ];
+
+  static BoxDecoration card({double radius = AppSizes.radiusCard}) =>
+      BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: AppColors.ruleSoft),
+        boxShadow: shadow,
+      );
+
+  /// The green of the page headers, darker at the foot.
+  static const headerGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF12805A), AppColors.brand, AppColors.brandDark],
+    stops: [0, 0.55, 1],
+  );
 }
 
 const _font = 'NotoSansBengali';
 
 /// Bengali needs more room between lines than Latin: the vowel signs sit above
 /// and below the letter, and a 1.2 line height crowds them into each other.
-TextStyle _bn(double size, FontWeight weight, Color color, {double height = 1.45}) =>
-    TextStyle(fontFamily: _font, fontSize: size, fontWeight: weight, color: color, height: height);
+TextStyle _bn(
+  double size,
+  FontWeight weight,
+  Color color, {
+  double height = 1.45,
+}) => TextStyle(
+  fontFamily: _font,
+  fontSize: size,
+  fontWeight: weight,
+  color: color,
+  height: height,
+);
 
 ThemeData buildTheme() {
   final scheme = ColorScheme.fromSeed(
@@ -82,12 +117,18 @@ ThemeData buildTheme() {
         side: const BorderSide(color: AppColors.rule),
       ),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.ruleSoft, thickness: 1, space: 1),
+    dividerTheme: const DividerThemeData(
+      color: AppColors.ruleSoft,
+      thickness: 1,
+      space: 1,
+    ),
     chipTheme: ChipThemeData(
       backgroundColor: AppColors.surface,
       side: const BorderSide(color: AppColors.rule),
       labelStyle: _bn(13.5, FontWeight.w600, AppColors.inkSoft),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusPill)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -115,11 +156,19 @@ ThemeData buildTheme() {
       height: 66,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       labelTextStyle: WidgetStateProperty.resolveWith(
-        (s) => _bn(12, s.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
-            s.contains(WidgetState.selected) ? AppColors.brand : AppColors.muted),
+        (s) => _bn(
+          12,
+          s.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+          s.contains(WidgetState.selected) ? AppColors.brand : AppColors.muted,
+        ),
       ),
       iconTheme: WidgetStateProperty.resolveWith(
-        (s) => IconThemeData(size: 23, color: s.contains(WidgetState.selected) ? AppColors.brand : AppColors.muted),
+        (s) => IconThemeData(
+          size: 23,
+          color: s.contains(WidgetState.selected)
+              ? AppColors.brand
+              : AppColors.muted,
+        ),
       ),
     ),
     snackBarTheme: SnackBarThemeData(

@@ -63,7 +63,11 @@ class PartyChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: colour, shape: BoxShape.circle)),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: colour, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 6),
         Flexible(
           child: Text(
@@ -113,7 +117,8 @@ class Pill extends StatelessWidget {
   }
 }
 
-/// One member in a list: photograph, name, what they hold, where they sit.
+/// One member in a list: photograph ringed in the party's colour, name, seat and
+/// party, and the office they hold when they hold one.
 class MemberTile extends StatelessWidget {
   final MemberBrief member;
   final VoidCallback onTap;
@@ -121,52 +126,91 @@ class MemberTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-            border: Border.all(color: AppColors.rule),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              MemberAvatar(member: member),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      member.nameBn,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+    final colour = AppColors.party(member.party);
+    return Container(
+      decoration: AppDecor.card(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppSizes.radiusCard),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: colour.withValues(alpha: 0.55),
+                      width: 2,
                     ),
-                    const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Text(member.seatLabel, style: Theme.of(context).textTheme.bodySmall),
-                        if (member.party != null) ...[
-                          Text(', ', style: Theme.of(context).textTheme.bodySmall),
-                          Flexible(child: PartyChip(abbr: member.party, label: member.partyBn, compact: true)),
-                        ],
-                      ],
-                    ),
-                    if (member.officeBn != null) ...[
-                      const SizedBox(height: 6),
-                      Pill(member.officeBn!),
-                    ],
-                  ],
+                  ),
+                  child: MemberAvatar(member: member, size: 50),
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.muted, size: 22),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        member.nameBn,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansBengali',
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: AppColors.muted,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            member.seatLabel,
+                            style: const TextStyle(
+                              fontFamily: 'NotoSansBengali',
+                              fontSize: 13,
+                              color: AppColors.muted,
+                              height: 1.3,
+                            ),
+                          ),
+                          if (member.party != null) ...[
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: PartyChip(
+                                abbr: member.party,
+                                label: member.partyBn,
+                                compact: true,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      if (member.officeBn != null) ...[
+                        const SizedBox(height: 6),
+                        Pill(member.officeBn!, filled: true),
+                      ],
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.rule,
+                  size: 24,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -203,14 +247,25 @@ class EmptyState extends StatelessWidget {
             Container(
               width: 64,
               height: 64,
-              decoration: const BoxDecoration(color: AppColors.brandSoft, shape: BoxShape.circle),
+              decoration: const BoxDecoration(
+                color: AppColors.brandSoft,
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, color: AppColors.brand, size: 30),
             ),
             const SizedBox(height: 16),
-            Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             if (body != null) ...[
               const SizedBox(height: 8),
-              Text(body!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                body!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 20),
@@ -218,10 +273,21 @@ class EmptyState extends StatelessWidget {
                 onPressed: onAction,
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.brand,
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusPill)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 13,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+                  ),
                 ),
-                child: Text(actionLabel!, style: const TextStyle(fontFamily: 'NotoSansBengali', fontWeight: FontWeight.w600)),
+                child: Text(
+                  actionLabel!,
+                  style: const TextStyle(
+                    fontFamily: 'NotoSansBengali',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ],
@@ -232,43 +298,66 @@ class EmptyState extends StatelessWidget {
 }
 
 /// The bar of choices above a list. One row, scrolls sideways when the labels
-/// outgrow the screen, which they do on a small phone in Bangla.
+/// outgrow the screen, which they do on a small phone in Bangla. On the green
+/// header (`onDark`) the chips are drawn in white.
 class ChipBar extends StatelessWidget {
   final List<({String label, String? value})> options;
   final String? selected;
   final ValueChanged<String?> onSelect;
-  const ChipBar({super.key, required this.options, required this.selected, required this.onSelect});
+  final bool onDark;
+  final EdgeInsets padding;
+  const ChipBar({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onSelect,
+    this.onDark = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: AppSizes.pagePad),
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 42,
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePad),
+        padding: padding,
         itemCount: options.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final o = options[i];
           final on = o.value == selected;
+          final Color bg;
+          final Color fg;
+          final Color line;
+          if (onDark) {
+            bg = on ? Colors.white : Colors.white.withValues(alpha: 0.12);
+            fg = on ? AppColors.brandDark : Colors.white;
+            line = on ? Colors.white : Colors.white.withValues(alpha: 0.22);
+          } else {
+            bg = on ? AppColors.brand : AppColors.surface;
+            fg = on ? Colors.white : AppColors.inkSoft;
+            line = on ? AppColors.brand : AppColors.rule;
+          }
           return GestureDetector(
             onTap: () => onSelect(o.value),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
+              duration: const Duration(milliseconds: 160),
               padding: const EdgeInsets.symmetric(horizontal: 14),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: on ? AppColors.ink : AppColors.surface,
+                color: bg,
                 borderRadius: BorderRadius.circular(AppSizes.radiusPill),
-                border: Border.all(color: on ? AppColors.ink : AppColors.rule),
+                border: Border.all(color: line),
               ),
               child: Text(
                 o.label,
                 style: TextStyle(
                   fontFamily: 'NotoSansBengali',
-                  fontSize: 13.5,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: on ? Colors.white : AppColors.inkSoft,
+                  color: fg,
+                  height: 1.2,
                 ),
               ),
             ),
@@ -287,10 +376,10 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => EmptyState(
-        icon: Icons.wifi_off_rounded,
-        title: 'তথ্য আনা গেল না',
-        body: message,
-        actionLabel: 'আবার চেষ্টা করুন',
-        onAction: onRetry,
-      );
+    icon: Icons.wifi_off_rounded,
+    title: 'তথ্য আনা গেল না',
+    body: message,
+    actionLabel: 'আবার চেষ্টা করুন',
+    onAction: onRetry,
+  );
 }
