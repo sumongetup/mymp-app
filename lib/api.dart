@@ -45,8 +45,21 @@ class Api {
   /// The stored copy is shown immediately even when it is old, and replaced
   /// quietly once the fetch returns; a slow connection then costs the reader
   /// nothing. [force] skips the stored copy, for pull-to-refresh.
-  Future<Bootstrap> loadBootstrap({bool force = false}) async {
-    if (_bootstrap != null && !force) return _bootstrap!;
+  Future<Bootstrap> loadBootstrap({bool force = false}) {
+    if (_bootstrap != null && !force) return Future.value(_bootstrap!);
+    // Several tabs ask at launch; they share the one request.
+    if (!force && _loading != null) return _loading!;
+    final loading = _loadBootstrap(force);
+    if (!force) {
+      _loading = loading;
+      loading.whenComplete(() => _loading = null).ignore();
+    }
+    return loading;
+  }
+
+  Future<Bootstrap>? _loading;
+
+  Future<Bootstrap> _loadBootstrap(bool force) async {
 
     final prefs = await SharedPreferences.getInstance();
     if (!force) {
@@ -123,7 +136,9 @@ class Api {
   /// One member's own news and videos, from the same route the website's
   /// profile page reads.
   Future<List<Story>> memberFeed(String slug) async {
-    final json = await _getJson('/api/feed/$slug');
+    // The newest 60 whatever their month: the plain route sends only this
+    // month, and a member whose news was all from February showed nothing.
+    final json = await _getJson('/api/feed/$slug?recent=60');
     final items = <Story>[];
     for (final key in const ['pinned', 'items']) {
       for (final raw

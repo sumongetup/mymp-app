@@ -28,10 +28,16 @@ class _MembersScreenState extends State<MembersScreen> {
   void initState() {
     super.initState();
     _future = Api.instance.loadBootstrap();
+    // The list opens from the copy on the phone; when the fresh one arrives in
+    // the background, it replaces what is on screen without a pull.
+    Api.instance.onBootstrapUpdated = (fresh) {
+      if (mounted) setState(() => _future = Future.value(fresh));
+    };
   }
 
   @override
   void dispose() {
+    Api.instance.onBootstrapUpdated = null;
     _search.dispose();
     super.dispose();
   }

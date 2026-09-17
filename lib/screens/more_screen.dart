@@ -13,8 +13,17 @@ import 'party_screen.dart';
 
 /// The parties, and the handful of things a reader looks for once: where the
 /// figures come from, what the app stores, how to report a mistake.
-class MoreScreen extends StatelessWidget {
+class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
+
+  @override
+  State<MoreScreen> createState() => _MoreScreenState();
+}
+
+class _MoreScreenState extends State<MoreScreen> {
+  // Built with the other tabs at launch, often before the member list has
+  // arrived; the party rows appear once it does.
+  late final Future<Bootstrap> _bootstrap = Api.instance.loadBootstrap();
 
   Future<void> _open(String url) async {
     final uri = Uri.tryParse(url);
@@ -23,9 +32,15 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = Api.instance.cached;
-    final parties = data?.parties ?? const <PartyBrief>[];
+    return FutureBuilder<Bootstrap>(
+      future: _bootstrap,
+      builder: (context, snap) =>
+          _page(context, snap.data ?? Api.instance.cached),
+    );
+  }
 
+  Widget _page(BuildContext context, Bootstrap? data) {
+    final parties = data?.parties ?? const <PartyBrief>[];
     return Scaffold(
       body: Column(
         children: [
@@ -141,7 +156,7 @@ class MoreScreen extends StatelessWidget {
                   child: Text(
                     data == null
                         ? 'সংস্করণ ১.১.০'
-                        : 'সংস্করণ ১.১.০, ${bn(data.parliamentNo)}তম সংসদ',
+                        : 'সংস্করণ ১.১.০, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ),
