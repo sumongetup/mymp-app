@@ -62,8 +62,9 @@ class _AdviserScreenState extends State<AdviserScreen> {
           if (snap.hasError || !snap.hasData) {
             return ErrorView(
               message: '${snap.error ?? 'তথ্য পাওয়া যায়নি'}',
-              onRetry: () =>
-                  setState(() => _future = Api.instance.adviser(widget.slug)),
+              onRetry: () => setState(() {
+                _future = Api.instance.adviser(widget.slug);
+              }),
             );
           }
           final a = snap.data!;
@@ -78,11 +79,11 @@ class _AdviserScreenState extends State<AdviserScreen> {
           ];
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AppSizes.pagePad,
               8,
               AppSizes.pagePad,
-              32,
+              32 + MediaQuery.paddingOf(context).bottom,
             ),
             children: [
               _header(context, a),

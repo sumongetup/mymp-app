@@ -233,6 +233,7 @@ class HeaderSearchField extends StatelessWidget {
           suffixIcon: controller.text.isEmpty
               ? null
               : IconButton(
+                  tooltip: 'মুছুন',
                   icon: const Icon(
                     Icons.close_rounded,
                     size: 20,

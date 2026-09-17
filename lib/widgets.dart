@@ -97,7 +97,10 @@ class Pill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
         color: filled ? c : c.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+        borderRadius: BorderRadius.circular(
+          // A title long enough to wrap reads as a label, not a stadium.
+          text.length > 22 ? 10 : AppSizes.radiusPill,
+        ),
         border: Border.all(color: filled ? c : c.withValues(alpha: 0.28)),
       ),
       child: Text(
@@ -339,43 +342,48 @@ class ChipBar extends StatelessWidget {
             fg = on ? Colors.white : AppColors.inkSoft;
             line = on ? AppColors.brand : AppColors.rule;
           }
-          return GestureDetector(
-            onTap: () => onSelect(o.value),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(AppSizes.radiusPill),
-                border: Border.all(color: line),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (leading?.call(o.value) case final mark?) ...[
-                    // On the selected green chip the logo sits on a white disc.
-                    Container(
-                      padding: const EdgeInsets.all(1.5),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+          // A button to a screen reader, and says which filter is on.
+          return Semantics(
+            button: true,
+            selected: on,
+            child: GestureDetector(
+              onTap: () => onSelect(o.value),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+                  border: Border.all(color: line),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (leading?.call(o.value) case final mark?) ...[
+                      // On the selected green chip the logo sits on a white disc.
+                      Container(
+                        padding: const EdgeInsets.all(1.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: mark,
                       ),
-                      child: mark,
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      o.label,
+                      style: TextStyle(
+                        fontFamily: 'NotoSansBengali',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: fg,
+                        height: 1.2,
+                      ),
                     ),
-                    const SizedBox(width: 6),
                   ],
-                  Text(
-                    o.label,
-                    style: TextStyle(
-                      fontFamily: 'NotoSansBengali',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: fg,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           );

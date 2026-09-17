@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import 'loading.dart';
 import 'theme.dart';
 
 /// Google Play asks an app that shows government information to say, in the
@@ -26,11 +26,6 @@ const kOfficialSources = <({String label, String url})>[
   (label: 'বাংলাদেশ নির্বাচন কমিশন: ecs.gov.bd', url: 'https://www.ecs.gov.bd'),
   (label: 'মন্ত্রিপরিষদ বিভাগ: cabinet.gov.bd', url: 'https://cabinet.gov.bd'),
 ];
-
-Future<void> _open(String url) async {
-  final uri = Uri.tryParse(url);
-  if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
-}
 
 /// The statement with the official sources as links, for the "আরও" tab.
 class DisclaimerCard extends StatelessWidget {
@@ -89,7 +84,7 @@ class DisclaimerCard extends StatelessWidget {
           ),
           for (final s in kOfficialSources)
             InkWell(
-              onTap: () => _open(s.url),
+              onTap: () => openLink(context, s.url),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,

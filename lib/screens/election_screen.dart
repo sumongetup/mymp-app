@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../bn.dart';
+import '../loading.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -10,6 +11,10 @@ import 'member_screen.dart';
 int _n(dynamic v) => v is num ? v.toInt() : 0;
 List<Map<String, dynamic>> _list(dynamic v) =>
     v is List ? v.whereType<Map<String, dynamic>>().toList() : const [];
+
+/// A string field, or null when the server sent anything else: one odd value
+/// must not turn the whole screen into an error.
+String? _str(dynamic v) => v is String ? v : null;
 Map<String, dynamic> _map(dynamic v) =>
     v is Map<String, dynamic> ? v : const {};
 
@@ -25,6 +30,14 @@ class ElectionScreen extends StatefulWidget {
 class _ElectionScreenState extends State<ElectionScreen> {
   late Future<Map<String, dynamic>> _future = Api.instance.election();
 
+  Future<void> _refresh() async {
+    final f = Api.instance.election(force: true);
+    setState(() {
+      _future = f;
+    });
+    await settle(f);
+  }
+
   void _openMember(MemberBrief m) => Navigator.of(
     context,
   ).push(MaterialPageRoute(builder: (_) => MemberScreen(member: m)));
@@ -33,22 +46,16 @@ class _ElectionScreenState extends State<ElectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('নির্বাচন পরিসংখ্যান')),
-      body: FutureBuilder<Map<String, dynamic>>(
+      body: Loaded<Map<String, dynamic>>(
         future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.brand),
-            );
-          }
-          if (snap.hasError || !snap.hasData) {
-            return ErrorView(
-              message: '${snap.error ?? 'তথ্য পাওয়া যায়নি'}',
-              onRetry: () => setState(() => _future = Api.instance.election()),
-            );
-          }
-          return _body(snap.data!);
-        },
+        onRetry: () => setState(() {
+          _future = Api.instance.election();
+        }),
+        builder: (context, e) => RefreshIndicator(
+          color: AppColors.brand,
+          onRefresh: _refresh,
+          child: _body(e),
+        ),
       ),
     );
   }
@@ -67,16 +74,16 @@ class _ElectionScreenState extends State<ElectionScreen> {
     final totalVotes = _n(results['totalVotes']);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSizes.pagePad,
         14,
         AppSizes.pagePad,
-        32,
+        32 + MediaQuery.paddingOf(context).bottom,
       ),
       children: [
         _Hero(
           parliamentNo: _n(e['parliamentNo']),
-          electionDate: dates['election'] as String?,
+          electionDate: _str(dates['election']),
           total: total,
           seatsCounted: _n(results['seatsCounted']),
         ),
@@ -91,10 +98,7 @@ class _ElectionScreenState extends State<ElectionScreen> {
                 ('শপথ', 'oath'),
                 ('মেয়াদ শেষ', 'end'),
               ])
-                (
-                  value: dateBn(dates[key] as String?) ?? 'তারিখ নেই',
-                  label: label,
-                ),
+                (value: dateBn(_str(dates[key])) ?? 'তারিখ নেই', label: label),
             ],
             valueSize: 15,
           ),
@@ -111,7 +115,7 @@ class _ElectionScreenState extends State<ElectionScreen> {
                 parts: [
                   for (final p in parties)
                     (
-                      color: AppColors.party(p['abbr'] as String?),
+                      color: AppColors.party(_str(p['abbr'])),
                       value: _n(p['seats']),
                     ),
                 ],
@@ -121,8 +125,8 @@ class _ElectionScreenState extends State<ElectionScreen> {
               const SizedBox(height: 14),
               for (final p in parties)
                 _PartyRow(
-                  abbr: p['abbr'] as String?,
-                  label: p['labelBn'] as String? ?? '',
+                  abbr: _str(p['abbr']),
+                  label: _str(p['labelBn']) ?? '',
                   value: '${bn(_n(p['seats']))} আসন',
                   note: 'সাধারণ আসনে ${bn(_n(p['seatsTerritorial']))}',
                 ),
@@ -134,7 +138,7 @@ class _ElectionScreenState extends State<ElectionScreen> {
           title: 'ভোটার ও ভোটকেন্দ্র',
           subtitle: 'সারা দেশের হিসাব',
           footer:
-              'সূত্র: ${voters['sourceBn'] ?? 'নির্বাচন কমিশন'}${dateBn(voters['readOn'] as String?) != null ? ', পড়া হয়েছে ${dateBn(voters['readOn'] as String?)}' : ''}',
+              'সূত্র: ${voters['sourceBn'] ?? 'নির্বাচন কমিশন'}${dateBn(_str(voters['readOn'])) != null ? ', পড়া হয়েছে ${dateBn(_str(voters['readOn']))}' : ''}',
           child: Column(
             children: [
               _Grid(
@@ -182,13 +186,13 @@ class _ElectionScreenState extends State<ElectionScreen> {
             title: 'দলভিত্তিক ভোট',
             subtitle:
                 '${bn(_n(results['seatsCounted']))}টি আসনে প্রার্থীরা মোট ${bnGroup(totalVotes)} ভোট পেয়েছেন',
-            footer: results['sourceBn'] as String?,
+            footer: _str(results['sourceBn']),
             child: Column(
               children: [
                 for (final v in _list(results['voteShare']))
                   _ShareRow(
-                    abbr: v['abbr'] as String?,
-                    label: v['labelBn'] as String? ?? '',
+                    abbr: _str(v['abbr']),
+                    label: _str(v['labelBn']) ?? '',
                     votes: _n(v['votes']),
                     total: totalVotes,
                   ),
@@ -269,7 +273,7 @@ class _ElectionScreenState extends State<ElectionScreen> {
           child: _Bars(
             rows: [
               for (final b in _list(people['ageBands']))
-                (label: b['label'] as String? ?? '', count: _n(b['count'])),
+                (label: _str(b['label']) ?? '', count: _n(b['count'])),
             ],
           ),
         ),
@@ -281,7 +285,7 @@ class _ElectionScreenState extends State<ElectionScreen> {
           child: _Bars(
             rows: [
               for (final b in _list(people['experience']))
-                (label: b['label'] as String? ?? '', count: _n(b['count'])),
+                (label: _str(b['label']) ?? '', count: _n(b['count'])),
             ],
             labelWidth: 118,
           ),
@@ -294,7 +298,7 @@ class _ElectionScreenState extends State<ElectionScreen> {
             child: _Bars(
               rows: [
                 for (final b in _list(people['professions']))
-                  (label: b['label'] as String? ?? '', count: _n(b['count'])),
+                  (label: _str(b['label']) ?? '', count: _n(b['count'])),
               ],
               labelWidth: 118,
             ),
@@ -735,7 +739,7 @@ class _MarginList extends StatelessWidget {
         for (final r in rows)
           if (r['member'] is Map<String, dynamic>)
             _PersonRow(
-              label: r['seatBn'] as String? ?? '',
+              label: _str(r['seatBn']) ?? '',
               member: MemberBrief.fromJson(_map(r['member'])),
               trailing: '${bnGroup(_n(r['margin']))} ভোটে',
               note: r['runnerUpParty'] != null

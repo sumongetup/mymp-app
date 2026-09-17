@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +18,10 @@ class Api {
   static const _userAgent = 'mymp-app/1.0 (Android; +https://mymp.bd)';
 
   Bootstrap? _bootstrap;
+
+  /// The member list as it stands, for screens that redraw when it changes:
+  /// a quiet refresh, a pull, or a first fetch that succeeds after a failure.
+  final bootstrap = ValueNotifier<Bootstrap?>(null);
 
   // Renamed when the list gains a field: a copy saved by an older version
   // lacks it and would stand until the site's data next changed.
@@ -98,6 +103,7 @@ class Api {
           _bootstrap = Bootstrap.fromJson(
             jsonDecode(saved) as Map<String, dynamic>,
           );
+          bootstrap.value = _bootstrap;
           unawaited(_refreshBootstrap(prefs));
           return _bootstrap!;
         } catch (_) {
@@ -109,6 +115,7 @@ class Api {
     final json = await _getJson('/api/app/v1/bootstrap');
     await prefs.setString(_bootstrapKey, jsonEncode(json));
     _bootstrap = Bootstrap.fromJson(json);
+    bootstrap.value = _bootstrap;
     return _bootstrap!;
   }
 
@@ -120,19 +127,17 @@ class Api {
       if (fresh.version != _bootstrap?.version && fresh.members.isNotEmpty) {
         await prefs.setString(_bootstrapKey, jsonEncode(json));
         _bootstrap = fresh;
-        onBootstrapUpdated?.call(fresh);
+        bootstrap.value = fresh;
       }
     } catch (_) {
       // Offline, or the site is being deployed. The stored copy stands.
     }
   }
 
-  /// Set by the shell so a quiet refresh can redraw the list it is showing.
-  void Function(Bootstrap)? onBootstrapUpdated;
-
-  Future<MemberDetail> member(String slug) async {
+  /// [force] skips the copy held for this session, for pull-to-refresh.
+  Future<MemberDetail> member(String slug, {bool force = false}) async {
     final held = _memberCache[slug];
-    if (held != null) return held;
+    if (held != null && !force) return held;
     final json = await _getJson('/api/app/v1/mp/$slug');
     final detail = MemberDetail.fromJson(json);
     _memberCache[slug] = detail;
@@ -155,7 +160,8 @@ class Api {
   Map<String, dynamic>? _election;
 
   /// The election and the House it produced; kept for the session once read.
-  Future<Map<String, dynamic>> election() async {
+  Future<Map<String, dynamic>> election({bool force = false}) async {
+    if (force) _election = null;
     return _election ??= await _getJson('/api/app/v1/election');
   }
 
@@ -191,7 +197,7 @@ class Api {
     final published = j['publishedAt'] as String? ?? '';
     return Story(
       id: 'feed-${j['id']}',
-      date: published.length >= 10 ? published.substring(0, 10) : published,
+      date: dhakaDate(published),
       dateLabel: '',
       lead: StoryLink(
         title: j['title'] as String? ?? '',
@@ -203,6 +209,17 @@ class Api {
       durationSeconds: (j['durationSeconds'] as num?)?.toInt(),
     );
   }
+}
+
+/// The calendar day in Bangladesh of an instant the feed gives in UTC: a story
+/// published at 05:00 in Dhaka is 23:00 the day before in UTC, and read as
+/// "গতকাল" it was a day out.
+String dhakaDate(String iso) {
+  final t = DateTime.tryParse(iso);
+  if (t == null) return iso.length >= 10 ? iso.substring(0, 10) : iso;
+  final d = t.toUtc().add(const Duration(hours: 6));
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${d.year}-${two(d.month)}-${two(d.day)}';
 }
 
 class ApiException implements Exception {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import 'loading.dart';
 import 'theme.dart';
 
 /// "উইকিপিডিয়া (বাংলা)" for a cited address, the way the website names it.
@@ -76,12 +76,7 @@ class BioCard extends StatelessWidget {
                 Text('সূত্র:', style: Theme.of(context).textTheme.labelSmall),
                 for (final url in sources)
                   InkWell(
-                    onTap: () {
-                      final uri = Uri.tryParse(url);
-                      if (uri != null) {
-                        launchUrl(uri, mode: LaunchMode.externalApplication);
-                      }
-                    },
+                    onTap: () => openLink(context, url),
                     child: Text(
                       sourceLabel(url),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(

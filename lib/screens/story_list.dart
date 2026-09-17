@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../bn.dart';
+import '../loading.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -30,24 +30,18 @@ class StoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Story>>(
+    return Loaded<List<Story>>(
       future: future,
-      builder: (context, snap) {
-        if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.brand),
-          );
-        }
-        if (snap.hasError) {
-          return ErrorView(message: '${snap.error}', onRetry: onRetry);
-        }
-        final stories = snap.data ?? const <Story>[];
+      onRetry: onRetry,
+      builder: (context, stories) {
         final list = ListView.separated(
-          padding: const EdgeInsets.fromLTRB(
+          // Clear of the system navigation bar on a pushed page; on a tab the
+          // app's own bar has already taken that inset.
+          padding: EdgeInsets.fromLTRB(
             AppSizes.pagePad,
             12,
             AppSizes.pagePad,
-            28,
+            28 + MediaQuery.paddingOf(context).bottom,
           ),
           itemCount:
               stories.length +
@@ -89,12 +83,6 @@ class StoryCard extends StatelessWidget {
   final Story story;
   const StoryCard({super.key, required this.story});
 
-  Future<void> _open(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri == null) return;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
   @override
   Widget build(BuildContext context) {
     final when = shortDateBn(story.date, label: story.dateLabel);
@@ -105,7 +93,7 @@ class StoryCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _open(story.lead.url),
+          onTap: () => openLink(context, story.lead.url),
           borderRadius: BorderRadius.circular(AppSizes.radiusCard),
           child: Padding(
             padding: const EdgeInsets.all(13),

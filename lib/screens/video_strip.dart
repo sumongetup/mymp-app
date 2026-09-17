@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../bn.dart';
+import '../loading.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -124,11 +124,6 @@ class _VideoCard extends StatelessWidget {
   final Story story;
   const _VideoCard({required this.story});
 
-  Future<void> _open() async {
-    final uri = Uri.tryParse(story.lead.url);
-    if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
   void _openMember(BuildContext context, String slug) {
     final brief = Api.instance.cached?.members
         .where((m) => m.slug == slug)
@@ -150,7 +145,7 @@ class _VideoCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: _open,
+          onTap: () => openLink(context, story.lead.url),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

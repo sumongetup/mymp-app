@@ -93,6 +93,18 @@ class _ShellState extends State<Shell> {
 
   @override
   Widget build(BuildContext context) {
+    // Back on any other tab returns to the member list, as Android readers
+    // expect; only from the first tab does it leave the app.
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _index != 0) setState(() => _index = 0);
+      },
+      child: _scaffold(),
+    );
+  }
+
+  Widget _scaffold() {
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
       bottomNavigationBar: Container(

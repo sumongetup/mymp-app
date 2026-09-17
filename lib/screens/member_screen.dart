@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../bio.dart';
 import '../bn.dart';
+import '../loading.dart';
 import '../models.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -53,10 +54,22 @@ class _MemberScreenState extends State<MemberScreen> {
     super.dispose();
   }
 
-  Future<void> _open(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri == null) return;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  Future<void> _open(String url) => openLink(context, url);
+
+  Future<void> _refreshDetail() async {
+    final f = Api.instance.member(widget.member.slug, force: true);
+    setState(() {
+      _detail = f;
+    });
+    await settle(f);
+  }
+
+  Future<void> _refreshFeed() async {
+    final f = Api.instance.memberFeed(widget.member.slug);
+    setState(() {
+      _feed = f;
+    });
+    await settle(f);
   }
 
   @override
@@ -73,7 +86,7 @@ class _MemberScreenState extends State<MemberScreen> {
               expandedHeight: _heroHeight,
               backgroundColor: AppColors.brand,
               foregroundColor: Colors.white,
-              systemOverlayStyle: null,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
               actions: [
                 IconButton(
                   tooltip: 'শেয়ার',
@@ -155,8 +168,10 @@ class _MemberScreenState extends State<MemberScreen> {
                 emptyTitle: 'এখনো কোনো সংবাদ যুক্ত হয়নি',
                 emptyBody:
                     'সংবাদমাধ্যমে ${m.nameBn}-এর নাম এলে তা এখানে দেখানো হবে।',
-                onRetry: () =>
-                    setState(() => _feed = Api.instance.memberFeed(m.slug)),
+                onRetry: () => setState(() {
+                  _feed = Api.instance.memberFeed(m.slug);
+                }),
+                onRefresh: _refreshFeed,
               ),
             ],
           ),
@@ -176,73 +191,84 @@ class _MemberScreenState extends State<MemberScreen> {
       ),
       child: SafeArea(
         bottom: false,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 28),
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    width: 3,
+        child: LayoutBuilder(
+          builder: (context, box) => FittedBox(
+            fit: BoxFit.scaleDown,
+            child: SizedBox(
+              width: box.maxWidth,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 28),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        width: 3,
+                      ),
+                    ),
+                    child: MemberAvatar(member: m, size: 104),
                   ),
-                ),
-                child: MemberAvatar(member: m, size: 104),
-              ),
-              const SizedBox(height: 12),
-              if (m.officeBn != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusPill),
-                  ),
-                  child: Text(
-                    m.officeBn!,
-                    style: const TextStyle(
-                      fontFamily: 'NotoSansBengali',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  const SizedBox(height: 12),
+                  if (m.officeBn != null)
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(
+                          AppSizes.radiusPill,
+                        ),
+                      ),
+                      child: Text(
+                        m.officeBn!,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansBengali',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      m.nameBn,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: 'NotoSansBengali',
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        height: 1.3,
+                      ),
                     ),
                   ),
-                ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  m.nameBn,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: 'NotoSansBengali',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.3,
+                  const SizedBox(height: 6),
+                  Text(
+                    m.seatLabel,
+                    style: TextStyle(
+                      fontFamily: 'NotoSansBengali',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withValues(alpha: 0.9),
+                    ),
                   ),
-                ),
+                  // Clear of the tab bar drawn across the foot of the same bar.
+                  const SizedBox(height: kTextTabBarHeight + 14),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                m.seatLabel,
-                style: TextStyle(
-                  fontFamily: 'NotoSansBengali',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
-              ),
-              // Clear of the tab bar drawn across the foot of the same bar.
-              const SizedBox(height: kTextTabBarHeight + 14),
-            ],
+            ),
           ),
         ),
       ),
@@ -250,23 +276,12 @@ class _MemberScreenState extends State<MemberScreen> {
   }
 
   Widget _profileTab() {
-    return FutureBuilder<MemberDetail>(
+    return Loaded<MemberDetail>(
       future: _detail,
-      builder: (context, snap) {
-        if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.brand),
-          );
-        }
-        if (snap.hasError || !snap.hasData) {
-          return ErrorView(
-            message: '${snap.error ?? 'তথ্য পাওয়া যায়নি'}',
-            onRetry: () => setState(
-              () => _detail = Api.instance.member(widget.member.slug),
-            ),
-          );
-        }
-        final d = snap.data!;
+      onRetry: () => setState(() {
+        _detail = Api.instance.member(widget.member.slug);
+      }),
+      builder: (context, d) {
         final facts = <({String label, String value})>[
           if (d.partyNameBn != null) (label: 'দল', value: d.partyNameBn!),
           if (d.partyRoleBn != null) (label: 'দলীয় পদ', value: d.partyRoleBn!),
@@ -287,134 +302,138 @@ class _MemberScreenState extends State<MemberScreen> {
           if (d.isFreedomFighter) (label: 'মুক্তিযোদ্ধা', value: 'হ্যাঁ'),
         ];
 
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSizes.pagePad,
-            16,
-            AppSizes.pagePad,
-            32,
-          ),
-          children: [
-            // The written biography, with its sources; the presiding officers'
-            // one-paragraph summary from parliament when there is no biography.
-            if (d.bioBn != null)
-              BioCard(text: d.bioBn!, sources: d.bioSources)
-            else if (d.summaryBn != null)
-              BioCard(text: d.summaryBn!, title: 'সংক্ষিপ্ত পরিচিতি'),
-            if (facts.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              FactsCard(title: 'তথ্য', facts: facts),
-            ],
-            if (d.result != null) ...[
-              const SizedBox(height: 12),
-              SeatResultCard(seatLabel: d.brief.seatLabel, result: d.result!),
-            ],
-            if (d.committees.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              _card(
-                context,
-                'সংসদীয় কমিটি',
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final c in d.committees)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(top: 4, right: 8),
-                              child: Icon(
-                                Icons.circle,
-                                size: 7,
-                                color: AppColors.brandRing,
+        return RefreshIndicator(
+          color: AppColors.brand,
+          onRefresh: _refreshDetail,
+          child: ListView(
+            padding: EdgeInsets.fromLTRB(
+              AppSizes.pagePad,
+              16,
+              AppSizes.pagePad,
+              32 + MediaQuery.paddingOf(context).bottom,
+            ),
+            children: [
+              // The written biography, with its sources; the presiding officers'
+              // one-paragraph summary from parliament when there is no biography.
+              if (d.bioBn != null)
+                BioCard(text: d.bioBn!, sources: d.bioSources)
+              else if (d.summaryBn != null)
+                BioCard(text: d.summaryBn!, title: 'সংক্ষিপ্ত পরিচিতি'),
+              if (facts.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                FactsCard(title: 'তথ্য', facts: facts),
+              ],
+              if (d.result != null) ...[
+                const SizedBox(height: 12),
+                SeatResultCard(seatLabel: d.brief.seatLabel, result: d.result!),
+              ],
+              if (d.committees.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _card(
+                  context,
+                  'সংসদীয় কমিটি',
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final c in d.committees)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 4, right: 8),
+                                child: Icon(
+                                  Icons.circle,
+                                  size: 7,
+                                  color: AppColors.brandRing,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                c.nameBn,
-                                style: Theme.of(context).textTheme.bodyLarge,
+                              Expanded(
+                                child: Text(
+                                  c.nameBn,
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
                               ),
-                            ),
-                            if (c.role != null) Pill(c.role!),
-                          ],
+                              if (c.role != null) Pill(c.role!),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-            if (d.priorTerms.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              _card(
-                context,
-                'আগের মেয়াদ',
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final t in d.priorTerms)
-                      Pill(
-                        '${bn(t.parliamentNo)}ম সংসদ${t.seatBn != null ? ', ${t.seatBn}' : ''}',
-                      ),
-                  ],
+              ],
+              if (d.priorTerms.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _card(
+                  context,
+                  'আগের মেয়াদ',
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final t in d.priorTerms)
+                        Pill(
+                          '${bn(t.parliamentNo)}ম সংসদ${t.seatBn != null ? ', ${t.seatBn}' : ''}',
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-            if (d.socials.isNotEmpty || d.email != null) ...[
-              const SizedBox(height: 12),
-              _card(
-                context,
-                'যোগাযোগ ও লিংক',
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (d.email != null)
-                      _linkRow(
-                        context,
-                        Icons.mail_outline_rounded,
-                        d.email!,
-                        () => _open('mailto:${d.email}'),
-                      ),
-                    for (final s in d.socials)
-                      _linkRow(
-                        context,
-                        Icons.open_in_new_rounded,
-                        s.label,
-                        () => _open(s.url),
-                      ),
-                  ],
+              ],
+              if (d.socials.isNotEmpty || d.email != null) ...[
+                const SizedBox(height: 12),
+                _card(
+                  context,
+                  'যোগাযোগ ও লিংক',
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (d.email != null)
+                        _linkRow(
+                          context,
+                          Icons.mail_outline_rounded,
+                          d.email!,
+                          () => _open('mailto:${d.email}'),
+                        ),
+                      for (final s in d.socials)
+                        _linkRow(
+                          context,
+                          Icons.open_in_new_rounded,
+                          s.label,
+                          () => _open(s.url),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Center(
-              child: TextButton.icon(
-                onPressed: () => _open('${Api.base}/mp/${d.brief.slug}'),
-                icon: const Icon(
-                  Icons.public_rounded,
-                  size: 18,
-                  color: AppColors.brand,
-                ),
-                label: const Text(
-                  'ওয়েবসাইটে দেখুন',
-                  style: TextStyle(
-                    fontFamily: 'NotoSansBengali',
-                    fontWeight: FontWeight.w600,
+              ],
+              const SizedBox(height: 16),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => _open('${Api.base}/mp/${d.brief.slug}'),
+                  icon: const Icon(
+                    Icons.public_rounded,
+                    size: 18,
                     color: AppColors.brand,
+                  ),
+                  label: const Text(
+                    'ওয়েবসাইটে দেখুন',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansBengali',
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brand,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Center(
-              child: Text(
-                'সূত্র: বাংলাদেশ জাতীয় সংসদ',
-                style: Theme.of(context).textTheme.labelSmall,
+              const SizedBox(height: 4),
+              Center(
+                child: Text(
+                  'সূত্র: বাংলাদেশ জাতীয় সংসদ',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../brand_header.dart';
@@ -8,6 +7,7 @@ import '../disclaimer.dart';
 import '../bn.dart';
 import '../models.dart';
 import '../party_logo.dart';
+import '../loading.dart';
 import '../theme.dart';
 
 import 'leaders_strip.dart';
@@ -23,21 +23,23 @@ class MoreScreen extends StatefulWidget {
 }
 
 class _MoreScreenState extends State<MoreScreen> {
-  // Built with the other tabs at launch, often before the member list has
-  // arrived; the party rows appear once it does.
-  late final Future<Bootstrap> _bootstrap = Api.instance.loadBootstrap();
-
-  Future<void> _open(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+  @override
+  void initState() {
+    super.initState();
+    // Built with the other tabs at launch, often before the member list has
+    // arrived. The party rows follow the list wherever it is fetched, so a
+    // first launch offline gets them once the members tab retries.
+    Api.instance.loadBootstrap().ignore();
   }
+
+  Future<void> _open(String url) => openLink(context, url);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Bootstrap>(
-      future: _bootstrap,
-      builder: (context, snap) =>
-          _page(context, snap.data ?? Api.instance.cached),
+    return ValueListenableBuilder<Bootstrap?>(
+      valueListenable: Api.instance.bootstrap,
+      builder: (context, data, _) =>
+          _page(context, data ?? Api.instance.cached),
     );
   }
 
@@ -166,8 +168,8 @@ class _MoreScreenState extends State<MoreScreen> {
                 Center(
                   child: Text(
                     data == null
-                        ? 'সংস্করণ ১.২.২'
-                        : 'সংস্করণ ১.২.২, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
+                        ? 'সংস্করণ ১.২.৩'
+                        : 'সংস্করণ ১.২.৩, ${parliamentBn(data.parliamentNo)} জাতীয় সংসদ',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ),

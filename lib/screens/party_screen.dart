@@ -32,11 +32,11 @@ class PartyScreen extends StatelessWidget {
               body: 'এই দলের কোনো নির্বাচিত সদস্য তালিকায় নেই।',
             )
           : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(
+              padding: EdgeInsets.fromLTRB(
                 AppSizes.pagePad,
                 12,
                 AppSizes.pagePad,
-                28,
+                28 + MediaQuery.paddingOf(context).bottom,
               ),
               itemCount: members.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: 10),

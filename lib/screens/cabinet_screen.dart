@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../brand_header.dart';
+import '../loading.dart';
 import '../bn.dart';
 import '../models.dart';
 import '../theme.dart';
@@ -23,7 +24,14 @@ class CabinetScreen extends StatefulWidget {
 class _CabinetScreenState extends State<CabinetScreen> {
   late Future<List<CabinetPost>> _future = Api.instance.cabinet();
 
-  void _reload() => setState(() => _future = Api.instance.cabinet());
+  void _reload() => setState(() {
+    _future = Api.instance.cabinet();
+  });
+
+  Future<void> _refresh() async {
+    _reload();
+    await settle(_future);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +43,10 @@ class _CabinetScreenState extends State<CabinetScreen> {
             subtitle: 'প্রধানমন্ত্রী, মন্ত্রী, প্রতিমন্ত্রী ও উপদেষ্টা',
           ),
           Expanded(
-            child: FutureBuilder<List<CabinetPost>>(
+            child: Loaded<List<CabinetPost>>(
               future: _future,
-              builder: (context, snap) {
-                if (snap.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: AppColors.brand),
-                  );
-                }
-                if (snap.hasError) {
-                  return ErrorView(message: '${snap.error}', onRetry: _reload);
-                }
-                final posts = snap.data ?? const <CabinetPost>[];
+              onRetry: _reload,
+              builder: (context, posts) {
                 if (posts.isEmpty) {
                   return const EmptyState(
                     icon: Icons.account_balance_outlined,
@@ -105,7 +105,7 @@ class _CabinetScreenState extends State<CabinetScreen> {
 
                 return RefreshIndicator(
                   color: AppColors.brand,
-                  onRefresh: () async => _reload(),
+                  onRefresh: _refresh,
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(
                       AppSizes.pagePad,

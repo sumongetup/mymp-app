@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../api.dart';
 import '../bn.dart';
 import '../brand_header.dart';
+import '../loading.dart';
 import '../models.dart';
 import '../party_logo.dart';
 import '../search.dart';
@@ -27,28 +29,46 @@ class _MembersScreenState extends State<MembersScreen> {
   String? _party;
   String? _district;
 
+  final _scroll = ScrollController();
+  bool _headerGone = false;
+
   @override
   void initState() {
     super.initState();
     _future = Api.instance.loadBootstrap();
     // The list opens from the copy on the phone; when the fresh one arrives in
-    // the background, it replaces what is on screen without a pull.
-    Api.instance.onBootstrapUpdated = (fresh) {
-      if (mounted) setState(() => _future = Future.value(fresh));
-    };
+    // the background it replaces what is on screen in place: same scroll
+    // position, same search, keyboard still open.
+    Api.instance.bootstrap.addListener(_onFresh);
+    _scroll.addListener(() {
+      final gone = _scroll.hasClients && _scroll.offset > 170;
+      if (gone != _headerGone) setState(() => _headerGone = gone);
+    });
+  }
+
+  void _onFresh() {
+    final fresh = Api.instance.bootstrap.value;
+    if (mounted && fresh != null) {
+      setState(() {
+        _future = Future.value(fresh);
+      });
+    }
   }
 
   @override
   void dispose() {
-    Api.instance.onBootstrapUpdated = null;
+    Api.instance.bootstrap.removeListener(_onFresh);
+    _scroll.dispose();
     _search.dispose();
     super.dispose();
   }
 
   Future<void> _refresh() async {
     final fresh = Api.instance.loadBootstrap(force: true);
-    setState(() => _future = fresh);
-    await fresh;
+    setState(() {
+      _future = fresh;
+    });
+    await settle(fresh);
   }
 
   void _clearAll() => setState(() {
@@ -58,19 +78,19 @@ class _MembersScreenState extends State<MembersScreen> {
     _district = null;
   });
 
-  MemberSearch? _index_;
+  MemberSearch? _searchIndex;
   Bootstrap? _indexed;
 
   /// Built once per member list, not per keystroke.
   MemberSearch _searchFor(Bootstrap data) {
-    if (_index_ == null || !identical(_indexed, data)) {
-      _index_ = MemberSearch(
+    if (_searchIndex == null || !identical(_indexed, data)) {
+      _searchIndex = MemberSearch(
         data.members,
         partyNames: {for (final p in data.parties) p.abbr: p.nameBn},
       );
       _indexed = data;
     }
-    return _index_!;
+    return _searchIndex!;
   }
 
   /// Party and district narrow the list; a typed query then ranks it, best
@@ -103,25 +123,38 @@ class _MembersScreenState extends State<MembersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final statusBar = MediaQuery.paddingOf(context).top;
     return Scaffold(
-      body: FutureBuilder<Bootstrap>(
-        future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.brand),
-            );
-          }
-          if (snap.hasError || !snap.hasData) {
-            return SafeArea(
-              child: ErrorView(
-                message: '${snap.error ?? 'কিছু একটা ভুল হয়েছে'}',
-                onRetry: _refresh,
+      body: Stack(
+        children: [
+          Positioned.fill(child: _list()),
+          if (_headerGone)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: statusBar,
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                value: SystemUiOverlayStyle.dark.copyWith(
+                  statusBarColor: Colors.transparent,
+                ),
+                child: ColoredBox(
+                  color: AppColors.paper.withValues(alpha: 0.96),
+                ),
               ),
-            );
-          }
+            ),
+        ],
+      ),
+    );
+  }
 
-          final data = snap.data!;
+  Widget _list() {
+    return Builder(
+      builder: (context) => Loaded<Bootstrap>(
+        future: _future,
+        onRetry: _refresh,
+        wrap: (child) => SafeArea(child: child),
+        builder: (context, data) {
           final shown = _filter(data);
           final filtered =
               _party != null || _district != null || _query.isNotEmpty;
@@ -130,6 +163,7 @@ class _MembersScreenState extends State<MembersScreen> {
             color: AppColors.brand,
             onRefresh: _refresh,
             child: CustomScrollView(
+              controller: _scroll,
               slivers: [
                 SliverToBoxAdapter(child: _header(data)),
                 // The House's leaders and the election figures first; a reader

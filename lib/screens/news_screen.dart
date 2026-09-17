@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../brand_header.dart';
+import '../loading.dart';
 import '../models.dart';
 import '../widgets.dart';
 import 'story_list.dart';
@@ -56,6 +57,8 @@ class _NewsScreenState extends State<NewsScreen> {
           ),
           Expanded(
             child: StoryList(
+              // A new filter starts clean; a refresh keeps the stories on screen.
+              key: ValueKey(_type),
               future: _future,
               header: _type == null
                   ? FutureBuilder<List<Story>>(
@@ -72,7 +75,10 @@ class _NewsScreenState extends State<NewsScreen> {
               emptyTitle: 'এখন কোনো খবর নেই',
               emptyBody: 'নতুন শিরোনাম এলে এখানে দেখা যাবে।',
               onRetry: () => _load(type: _type),
-              onRefresh: () async => _load(type: _type),
+              onRefresh: () async {
+                _load(type: _type);
+                await settle(_future);
+              },
             ),
           ),
         ],
