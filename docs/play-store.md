@@ -90,7 +90,7 @@ Report an error, with a source: mymp.bangladesh@gmail.com
 
 - App icon: `store/icon-512.png` (512×512)
 - Feature graphic: `store/feature-graphic.png` (1024×500)। বদলাতে হলে `store/feature-graphic.html` এডিট করে headless Chrome দিয়ে 1024×500 স্ক্রিনশট নিন।
-- Phone screenshots: `store/screenshots/` ফোল্ডারের ৬টা (1080×1920, ঠিক 9:16; Play এখন শুধু 9:16 বা 16:9 নেয়, আর এখনকার ফোনের নিজের স্ক্রিনশট তার চেয়ে লম্বা)। অ্যাপের web build হেডলেস Chrome-এ 405×720 ভিউপোর্টে ৮/৩ স্কেলে তোলা। সংবাদ ট্যাব ইচ্ছা করে বাদ: কোনো সদস্যের বিরুদ্ধে যায় এমন শিরোনাম স্ক্রিনশটে না রাখাই ভালো।
+- Phone screenshots: `store/screenshots/` ফোল্ডারের ৮টা (Play-র সর্বোচ্চ সীমা; 1080×1920, ঠিক 9:16; Play এখন শুধু 9:16 বা 16:9 নেয়, আর এখনকার ফোনের নিজের স্ক্রিনশট তার চেয়ে লম্বা)। অ্যাপের web build হেডলেস Chrome-এ 405×720 ভিউপোর্টে ৮/৩ স্কেলে তোলা। সংবাদ ট্যাব ইচ্ছা করে বাদ: কোনো সদস্যের বিরুদ্ধে যায় এমন শিরোনাম স্ক্রিনশটে না রাখাই ভালো।
 
 **Category:** Books & Reference। **Contact:** email `mymp.bangladesh@gmail.com`, website `https://mymp.bd`।
 
