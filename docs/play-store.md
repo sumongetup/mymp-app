@@ -102,7 +102,7 @@ Report an error, with a source: mymp.bangladesh@gmail.com
 | App access | All functionality is available without special access |
 | Ads | No, my app does not contain ads |
 | Content rating | Category: **Reference, News, or Educational**। সহিংসতা, যৌনতা, মাদক, জুয়া, গালি: No। User interaction বা content sharing: No। Location sharing: No। Digital purchases: No |
-| Target audience | **18 and over** (কম বয়স বাছলে Families নীতির বাড়তি শর্ত আসে) |
+| Target audience | **13-15, 16-17, 18 and over** তিনটাই টিক; ১৩-র নিচের কোনো বয়স নয় (তাহলে Families নীতির বাড়তি শর্ত আসে)। "Appeals to children" প্রশ্নে: No। এটা শুধু ঘোষণা, কে ইনস্টল করতে পারবে তা ঠিক করে content rating, আর এই অ্যাপের rating সবার জন্য খোলা |
 | News apps | No। অ্যাপের মূল কাজ সংসদ সদস্যদের তথ্য; সংবাদ শুধু শিরোনাম, যা মূল সংবাদমাধ্যমে খোলে |
 | Data safety | Does your app collect or share any of the required user data types? **No**। ফলে বাকি প্রশ্ন আসে না |
 | Government apps | No (সরকারের পক্ষে বানানো নয়) |
