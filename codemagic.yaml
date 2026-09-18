@@ -3,14 +3,24 @@
 #   android-check    every push to main: analyze and test, nothing is signed.
 #   android-release  a tag like v1.2.4: analyze, test, then the Play bundle
 #                    (AAB) signed with the upload key, plus an APK for phones.
+#   ios-release      a tag like v1.2.4: analyze, test, then an App Store build
+#                    (IPA) uploaded to App Store Connect for TestFlight.
+#
+# The app is added to Codemagic by its public URL, not through the GitHub
+# integration, so pushes and tags do not reach Codemagic: start each build
+# from "Start new build".
 #
 # The upload key is never in this repository. Upload the .jks once in
 # Codemagic under Team settings > Code signing identities > Android keystores
 # with the reference name mymp_upload; the release workflow asks for it below
 # and fails, rather than signing with the debug key, when it is missing.
 #
-# Play needs a higher versionCode on every upload: raise the number after the
-# + in pubspec.yaml (version: 1.2.4+7) before tagging a new release.
+# iOS signs with the App Store Connect API key (integration ftp_app_store_key,
+# the same Apple team) and the distribution certificate and App Store profile
+# for bd.mymp.app under Code signing identities.
+#
+# Play and Apple both need a higher build number on every upload: raise the
+# number after the + in pubspec.yaml (version: 1.2.4+7) before a release.
 
 workflows:
   android-check:
@@ -91,3 +101,45 @@ workflows:
     #     credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
     #     track: internal
     #     submit_as_draft: true
+
+  ios-release:
+    name: iOS release (TestFlight)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: ftp_app_store_key
+    environment:
+      flutter: 3.44.8
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: bd.mymp.app
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "v*"
+          include: true
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos
+      - name: Test
+        script: flutter test
+      - name: Use the App Store profile
+        # Points the Xcode project at the profile ios_signing fetched above,
+        # and writes the export options flutter build ipa reads.
+        script: xcode-project use-profiles
+      - name: Build IPA
+        script: flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Sending a build to App Review stays a human decision.
+        submit_to_app_store: false
