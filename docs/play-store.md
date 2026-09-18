@@ -28,7 +28,7 @@ Play Console-এ যা যা লিখতে হয়, হুবহু। ন
 **Full description:**
 
 ```
-My MP (আমার এমপি) অ্যাপে এক জায়গায় পাবেন ত্রয়োদশ জাতীয় সংসদের সব সদস্যের তথ্য।
+My MP (আমার এমপি, Amar MP) অ্যাপে এক জায়গায় পাবেন ত্রয়োদশ জাতীয় সংসদের সব সদস্যের তথ্য।
 
 যা যা দেখা যায়
 • নাম, আসন, জেলা বা উপজেলা দিয়ে খুঁজে নিজের এলাকার সংসদ সদস্য বের করুন; বাংলা ও ইংরেজি দুই বানানেই খোঁজা যায়
@@ -66,7 +66,7 @@ Bangladesh MPs, cabinet and election results. Independent, not a government app.
 Full:
 
 ```
-My MP (আমার এমপি) brings together information on every member of Bangladesh's 13th Jatiya Sangsad.
+My MP (Amar MP, আমার এমপি) brings together information on every member of Bangladesh's 13th Jatiya Sangsad.
 
 • Find your MP by name, seat, district or upazila, in Bangla or English
 • Member profiles: party, seat, ministry, education, profession, parliamentary committees, earlier terms, official contacts
