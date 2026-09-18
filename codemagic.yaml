@@ -15,7 +15,7 @@
 # with the reference name mymp_upload; the release workflow asks for it below
 # and fails, rather than signing with the debug key, when it is missing.
 #
-# iOS signs with the App Store Connect API key (integration ftp_app_store_key,
+# iOS signs with the App Store Connect API key (integration mymp_app_store_key,
 # the same Apple team) and the distribution certificate and App Store profile
 # for bd.mymp.app under Code signing identities.
 #
@@ -107,7 +107,7 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     integrations:
-      app_store_connect: ftp_app_store_key
+      app_store_connect: mymp_app_store_key
     environment:
       flutter: 3.44.8
       xcode: latest

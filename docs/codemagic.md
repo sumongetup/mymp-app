@@ -38,7 +38,7 @@
 
 ### ৪. iOS-এর জন্য (একবারই)
 
-অ্যাপের bundle ID: **`bd.mymp.app`** (Android-এর মতোই)। Codemagic-এ Apple-এর API কী আগে থেকেই আছে (`ftp_app_store_key`, Find Travel Partner-এর জন্য দেওয়া), একই Apple অ্যাকাউন্ট দিয়ে এই অ্যাপও চলবে।
+অ্যাপের bundle ID: **`bd.mymp.app`** (Android-এর মতোই)। প্রথমে Codemagic > **Settings > Integrations > Developer Portal**-এ App Store Connect API কী যোগ করুন (Issuer ID, Key ID, .p8 ফাইল), নাম দিন `mymp_app_store_key`।
 
 1. **developer.apple.com > Certificates, IDs & Profiles > Identifiers > +** > App IDs > App। Description `Amar MP`, Bundle ID **Explicit** `bd.mymp.app`। কোনো Capability লাগবে না। Register।
 2. **Profiles > +** > **App Store Connect** (Distribution)। App ID `bd.mymp.app`, সার্টিফিকেট আগের Apple Distribution-টা। নাম `mymp App Store`। Generate।
