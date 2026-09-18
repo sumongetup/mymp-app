@@ -16,7 +16,7 @@
 # and fails, rather than signing with the debug key, when it is missing.
 #
 # iOS signs with the App Store Connect API key (integration mymp_app_store_key,
-# the same Apple team) and the distribution certificate and App Store profile
+# added under Settings > Integrations) and the distribution certificate and App Store profile
 # for bd.mymp.app under Code signing identities.
 #
 # Play and Apple both need a higher build number on every upload: raise the
