@@ -1,0 +1,93 @@
+# Codemagic builds for আমার এমপি (bd.mymp.app).
+#
+#   android-check    every push to main: analyze and test, nothing is signed.
+#   android-release  a tag like v1.2.4: analyze, test, then the Play bundle
+#                    (AAB) signed with the upload key, plus an APK for phones.
+#
+# The upload key is never in this repository. Upload the .jks once in
+# Codemagic under Team settings > Code signing identities > Android keystores
+# with the reference name mymp_upload; the release workflow asks for it below
+# and fails, rather than signing with the debug key, when it is missing.
+#
+# Play needs a higher versionCode on every upload: raise the number after the
+# + in pubspec.yaml (version: 1.2.4+7) before tagging a new release.
+
+workflows:
+  android-check:
+    name: Check (analyze and test)
+    instance_type: linux_x2
+    max_build_duration: 30
+    environment:
+      flutter: 3.44.8
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Analyze
+        # The whole project, test/ included: an analyzer error anywhere would
+        # also stop the release build.
+        script: flutter analyze --no-fatal-infos
+      - name: Test
+        script: flutter test
+
+  android-release:
+    name: Android release (signed AAB)
+    instance_type: linux_x2
+    max_build_duration: 60
+    environment:
+      flutter: 3.44.8
+      android_signing:
+        - mymp_upload
+      vars:
+        # android/app/build.gradle.kts fails the build without the upload key
+        # instead of quietly signing with the debug key.
+        REQUIRE_UPLOAD_KEY: "true"
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "v*"
+          include: true
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos
+      - name: Test
+        script: flutter test
+      - name: Build app bundle (for Play)
+        script: flutter build appbundle --release
+      - name: Build APK (for phones)
+        script: flutter build apk --release
+      - name: Check the bundle is signed with the upload key
+        script: |
+          set -e
+          AAB=build/app/outputs/bundle/release/app-release.aab
+          OWNER=$(keytool -printcert -jarfile "$AAB" | grep -m1 "Owner:" || true)
+          echo "Signed by: $OWNER"
+          if [ -z "$OWNER" ] || echo "$OWNER" | grep -q "Android Debug"; then
+            echo "The bundle is not signed with the upload key; Play would refuse it."
+            exit 1
+          fi
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+      - build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/mapping/release/mapping.txt
+    # Uncomment to have finished builds emailed, or to upload to Play's
+    # internal testing track once a Google Play service account is added in
+    # Codemagic (Team settings > Integrations > Google Play):
+    # publishing:
+    #   email:
+    #     recipients:
+    #       - you@example.com
+    #   google_play:
+    #     credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+    #     track: internal
+    #     submit_as_draft: true

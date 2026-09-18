@@ -28,34 +28,45 @@ android {
     }
 
     /*
-     * The upload key, read from android/key.properties, which is never
-     * committed. Without that file the release build falls back to the debug
-     * key so `flutter build apk --release` still works on a fresh clone — but
-     * Play will not take a debug-signed bundle, and does not have to say why.
+     * The upload key, from one of two places:
+     *  - on Codemagic, the keystore uploaded under Code signing identities,
+     *    which the build machine exposes as CM_KEYSTORE_PATH and friends;
+     *  - on this PC, android/key.properties (never committed).
+     * With neither, a release build falls back to the debug key so a phone test
+     * still works on a fresh clone; Play refuses a debug-signed bundle, so the
+     * Codemagic release workflow sets REQUIRE_UPLOAD_KEY and fails instead.
      */
+    val ciKeystore = System.getenv("CM_KEYSTORE_PATH")?.takeIf { file(it).exists() }
+    val localProps = rootProject.file("key.properties").takeIf { it.exists() }
+        ?.let { f -> Properties().apply { FileInputStream(f).use { load(it) } } }
+    val localKeystore = localProps?.getProperty("storeFile")?.let { rootProject.file(it) }?.takeIf { it.exists() }
+    val hasUploadKey = ciKeystore != null || localKeystore != null
+
     signingConfigs {
         create("upload") {
-            val keyFile = rootProject.file("key.properties")
-            if (keyFile.exists()) {
-                val props = Properties()
-                FileInputStream(keyFile).use { props.load(it) }
-                storeFile = props.getProperty("storeFile")?.let { rootProject.file(it) }
-                storePassword = props.getProperty("storePassword")
-                keyAlias = props.getProperty("keyAlias")
-                keyPassword = props.getProperty("keyPassword")
+            if (ciKeystore != null) {
+                storeFile = file(ciKeystore)
+                storePassword = System.getenv("CM_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("CM_KEY_ALIAS")
+                keyPassword = System.getenv("CM_KEY_PASSWORD")
+            } else if (localKeystore != null && localProps != null) {
+                storeFile = localKeystore
+                storePassword = localProps.getProperty("storePassword")
+                keyAlias = localProps.getProperty("keyAlias")
+                keyPassword = localProps.getProperty("keyPassword")
             }
         }
     }
 
     buildTypes {
         release {
-            // Signed with the upload key only once the key itself exists: a
-            // key.properties still waiting for its passwords must not break the
-            // build a phone test needs.
-            val keyFile = rootProject.file("key.properties")
-            val signed = keyFile.exists() && Properties().apply { FileInputStream(keyFile).use { load(it) } }
-                .getProperty("storeFile")?.let { rootProject.file(it).exists() } == true
-            signingConfig = signingConfigs.getByName(if (signed) "upload" else "debug")
+            if (!hasUploadKey && System.getenv("REQUIRE_UPLOAD_KEY") == "true") {
+                throw GradleException(
+                    "No upload key: add the keystore in Codemagic (Code signing identities, " +
+                        "reference mymp_upload) or create android/key.properties.",
+                )
+            }
+            signingConfig = signingConfigs.getByName(if (hasUploadKey) "upload" else "debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
