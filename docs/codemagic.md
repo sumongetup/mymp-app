@@ -4,8 +4,8 @@
 
 | ওয়ার্কফ্লো | কখন চলে | কী করে |
 |---|---|---|
-| `android-check` | `main`-এ প্রতিটা push | analyze আর test; কিছু সাইন হয় না |
-| `android-release` | `v` দিয়ে শুরু ট্যাগ (যেমন `v1.2.4`) | analyze, test, আপলোড কী দিয়ে সাইন করা AAB আর APK |
+| `android-check` | Start new build থেকে | analyze আর test; কিছু সাইন হয় না |
+| `android-release` | Start new build থেকে | analyze, test, আপলোড কী দিয়ে সাইন করা AAB আর APK |
 
 ## একবারের কাজ
 
@@ -19,13 +19,17 @@
 
 ### ২. Codemagic-এ অ্যাপ যোগ
 
-1. codemagic.io-তে GitHub দিয়ে লগইন করুন (sumongetup অ্যাকাউন্ট)।
-2. **Add application** > GitHub > রিপোজিটরি **sumongetup/mymp-app** বাছুন। না দেখালে GitHub-এ Codemagic-কে এই রিপোজিটরির অনুমতি দিন।
-3. প্রজেক্টের ধরন **Flutter App**, আর কনফিগারেশন **codemagic.yaml** বাছুন।
+রিপোজিটরিটা public, তাই কোনো কী বা অনুমতি লাগে না।
+
+1. **Add application** > Git provider **Other** (GitHub নয়)।
+2. Repository URL: `https://github.com/sumongetup/mymp-app.git`। SSH key আর password ফাঁকা রাখুন।
+3. Project type **Flutter App** (না থাকলে **Other**), তারপর **Add application**। Codemagic নিজেই `codemagic.yaml` পড়বে।
+
+এভাবে যোগ করা অ্যাপে GitHub-এর push বা ট্যাগ Codemagic-এ পৌঁছায় না, তাই বিল্ড নিজে চালাতে হয় (নিচে দেখুন)।
 
 ### ৩. আপলোড কী Codemagic-এ দিন
 
-**Team settings > Code signing identities > Android keystores > Add keystore**
+**Settings (বা Team settings) > Code signing identities > Android keystores > Add keystore**
 
 - Keystore file: `mymp-upload.jks`
 - Keystore password, Key alias (`upload`), Key password: আপনার দেওয়া
@@ -34,19 +38,9 @@
 ## প্রতিটা রিলিজ
 
 1. `pubspec.yaml`-এ `version: 1.2.4+7`-এর `+`-এর পরের সংখ্যা এক বাড়ান (Play প্রতিবার বড় সংখ্যা চায়)।
-2. কমিট করে push করুন, তারপর ট্যাগ:
-
-```bash
-git tag v1.2.5
-```
-
-```bash
-git push origin v1.2.5
-```
-
-3. Codemagic-এ `android-release` নিজে চালু হবে। শেষে **Artifacts** থেকে `app-release.aab` নামিয়ে Play Console-এ তুলুন।
-
-চাইলে ট্যাগ ছাড়াও Codemagic-এ **Start new build** চেপে `android-release` বেছে চালানো যায়।
+2. কমিট করে `main`-এ push করুন।
+3. Codemagic-এ অ্যাপ খুলে **Start new build** > branch `main` > workflow **Android release (signed AAB)** > **Start new build**।
+4. শেষে **Artifacts** থেকে `app-release.aab` নামিয়ে Play Console-এ তুলুন। `app-release.apk` সরাসরি ফোনে ইনস্টলের জন্য।
 
 ## কী না থাকলে
 
