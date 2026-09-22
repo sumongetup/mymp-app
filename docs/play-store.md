@@ -1,12 +1,12 @@
 # Google Play-তে আমার এমপি
 
-Play Console-এ যা যা লিখতে হয়, হুবহু। নীতিমালা যাচাই করা হয়েছে ১৮ সেপ্টেম্বর ২০২৬, সংস্করণ ১.২.৪ (+7)-এর উপর।
+Play Console-এ যা যা লিখতে হয়, হুবহু। নীতিমালা যাচাই করা হয়েছে ১৮ সেপ্টেম্বর ২০২৬, সংস্করণ ১.২.৫ (+8)-এর উপর; ১.২.৪ প্রথম রিভিউতে ফিরে এসেছিল, নিচে দেখুন।
 
 ## অ্যাপ নিজে যা যা পূরণ করে
 
 | Play-র নিয়ম | অ্যাপে |
 |---|---|
-| সরকারি তথ্য দেখানো অ্যাপকে জানাতে হবে যে সে সরকারের নয়, আর তথ্যের সূত্র দিতে হবে | প্রথমবার খুললেই "আমার এমপি সম্পর্কে" বার্তা; "আরও" ট্যাবে সংসদ, নির্বাচন কমিশন ও মন্ত্রিপরিষদ বিভাগের লিংক; প্রতিটি সদস্যের পাতায় "সূত্র: বাংলাদেশ জাতীয় সংসদ" |
+| সরকারি তথ্য দেখানো অ্যাপকে জানাতে হবে যে সে সরকারের নয়, আর **প্রতিটি** সূত্র নামসহ দিতে হবে | প্রথমবার খুললেই "আমার এমপি সম্পর্কে" বার্তায় ৬টি সূত্র লিংকসহ; "আরও" ট্যাবে একই তালিকা; হোম পাতার নিচে এক লাইনে সব সূত্র, চাপলে তালিকা; প্রতিটি ফল ও জীবনীর নিচে নিজস্ব সূত্র (সংস্করণ ১.২.৫) |
 | Target API | Android 16 (API 36), Flutter 3.44 |
 | অনুমতি | শুধু INTERNET |
 | গোপনীয়তা নীতি | https://mymp.bd/gopaniyota (অ্যাপের জন্য আলাদা অংশসহ) |
@@ -25,9 +25,11 @@ Play Console-এ যা যা লিখতে হয়, হুবহু। ন
 সংসদ সদস্য, মন্ত্রিসভা ও নির্বাচনী ফলের তথ্য। স্বাধীন, বেসরকারি তথ্যসেবা।
 ```
 
-**Full description:**
+**Full description** (Google-এর প্রথম রিভিউ ২১ সেপ্টেম্বর ২০২৬-এ "Insufficient Sources Provided" বলে ফিরিয়ে দিয়েছিল: আগের লেখায় "কিছু তথ্য প্রকাশিত সংবাদ ও উইকিপিডিয়া থেকে" ছিল, কোন সংবাদমাধ্যম তা বলা ছিল না। এখন প্রতিটি সূত্র নামসহ, আর ঘোষণা একেবারে উপরে):
 
 ```
+গুরুত্বপূর্ণ: My MP (আমার এমপি) একটি স্বাধীন, বেসরকারি তথ্যসেবা। এটি বাংলাদেশ জাতীয় সংসদ, নির্বাচন কমিশন, মন্ত্রিপরিষদ বিভাগ বা সরকারের কোনো দপ্তরের অ্যাপ নয়, কোনো সরকারি প্রতিষ্ঠানের প্রতিনিধিত্ব করে না, এবং কোনো সরকারি প্রতিষ্ঠান, রাজনৈতিক দল বা সংসদ সদস্যের সঙ্গে যুক্ত নয়।
+
 My MP (আমার এমপি, Amar MP) অ্যাপে এক জায়গায় পাবেন ত্রয়োদশ জাতীয় সংসদের সব সদস্যের তথ্য।
 
 যা যা দেখা যায়
@@ -40,17 +42,17 @@ My MP (আমার এমপি, Amar MP) অ্যাপে এক জায�
 • সংবাদমাধ্যমে কোন সদস্যের নাম এসেছে, তার শিরোনাম; চাপ দিলে মূল সংবাদমাধ্যমের পাতায় খোলে
 • নেটওয়ার্ক না থাকলেও সদস্যদের তালিকা খোলে
 
+তথ্যের সূত্র (অ্যাপের প্রতিটি তথ্য এই সূত্রগুলো থেকে নেওয়া)
+• বাংলাদেশ জাতীয় সংসদ, https://www.parliament.gov.bd: সংসদ সদস্যদের নাম, ছবি, আসন, দল, যোগাযোগ, সংসদীয় কমিটি, অধিবেশন ও সংসদ সচিবালয়ের প্রজ্ঞাপন
+• বাংলাদেশ নির্বাচন কমিশন, https://www.ecs.gov.bd: নিবন্ধিত ভোটার ও ভোটকেন্দ্রের সংখ্যা
+• মন্ত্রিপরিষদ বিভাগ, https://cabinet.gov.bd: মন্ত্রী, প্রতিমন্ত্রী ও উপদেষ্টাদের তালিকা
+• দ্য বিজনেস স্ট্যান্ডার্ড, https://www.tbsnews.net: ২০২৬ সালের নির্বাচনের আসনভিত্তিক ভোটের ফল
+• বাংলা উইকিপিডিয়া, https://bn.wikipedia.org ও ইংরেজি উইকিপিডিয়া, https://en.wikipedia.org: ভোটের ফল মিলিয়ে দেখা, দলের ইতিহাস, কিছু সদস্যের শিক্ষা, জন্মস্থান ও জীবনী
+• সংবাদ অংশে প্রতিটি শিরোনামের পাশে সংবাদমাধ্যমের নাম লেখা থাকে; চাপ দিলে সেই সংবাদমাধ্যমের নিজের সাইটে খোলে। অ্যাপ নিজে কোনো সংবাদ লেখে না।
+অ্যাপের ভেতরে প্রতিটি সূত্রের লিংক "আরও" ট্যাবে আছে, আর প্রতিটি ফল ও জীবনীর নিচে তার নিজস্ব সূত্র লেখা।
+
 গোপনীয়তা
 কোনো অ্যাকাউন্ট লাগে না, কোনো ব্যক্তিগত তথ্য নেওয়া হয় না, কোনো বিজ্ঞাপন নেই।
-
-গুরুত্বপূর্ণ
-আমার এমপি একটি স্বাধীন, বেসরকারি তথ্যসেবা। এটি বাংলাদেশ জাতীয় সংসদ, নির্বাচন কমিশন, মন্ত্রিপরিষদ বিভাগ বা সরকারের কোনো দপ্তরের অ্যাপ নয়, কোনো সরকারি প্রতিষ্ঠান, রাজনৈতিক দল বা সংসদ সদস্যের সঙ্গে যুক্তও নয়।
-
-তথ্যের সূত্র
-• বাংলাদেশ জাতীয় সংসদ: https://www.parliament.gov.bd
-• বাংলাদেশ নির্বাচন কমিশন: https://www.ecs.gov.bd
-• মন্ত্রিপরিষদ বিভাগ: https://cabinet.gov.bd
-ভোটের ফল, শিক্ষা বা দলের ইতিহাসের মতো কিছু তথ্য প্রকাশিত সংবাদ ও উইকিপিডিয়া থেকে; প্রতিটির সূত্র অ্যাপে ও https://mymp.bd/sutro পাতায় লেখা।
 
 কোনো তথ্য ভুল মনে হলে সূত্রসহ জানান: mymp.bangladesh@gmail.com
 ```
@@ -66,7 +68,9 @@ Bangladesh MPs, cabinet and election results. Independent, not a government app.
 Full:
 
 ```
-My MP (Amar MP, আমার এমপি) brings together information on every member of Bangladesh's 13th Jatiya Sangsad.
+Important: My MP (Amar MP, আমার এমপি) is an independent, non-government information service. It is not an app of the Parliament of Bangladesh, the Election Commission, the Cabinet Division or any government office, does not represent any government entity, and is not affiliated with any government body, political party or MP.
+
+My MP brings together information on every member of Bangladesh's 13th Jatiya Sangsad.
 
 • Find your MP by name, seat, district or upazila, in Bangla or English
 • Member profiles: party, seat, ministry, education, profession, parliamentary committees, earlier terms, official contacts
@@ -77,11 +81,16 @@ My MP (Amar MP, আমার এমপি) brings together information on every 
 • Headlines that mention a member, each opening on the publisher's own page
 • The member list opens without a network connection
 
+Sources (everything in the app comes from these)
+• Parliament of Bangladesh, https://www.parliament.gov.bd: members' names, photos, seats, parties, contacts, committees, sessions and Secretariat notices
+• Bangladesh Election Commission, https://www.ecs.gov.bd: registered voters and polling centres
+• Cabinet Division, https://cabinet.gov.bd: ministers, state ministers and advisers
+• The Business Standard, https://www.tbsnews.net: seat-by-seat results of the 2026 election
+• Bangla Wikipedia, https://bn.wikipedia.org, and English Wikipedia, https://en.wikipedia.org: cross-checking results, party history, and some members' education, birthplace and biography
+• Every headline in the news section carries the publisher's name and opens on the publisher's own site; the app writes no news itself.
+Each source is linked inside the app under "More", and every result and biography names its own source.
+
 No account, no personal data collected, no ads.
-
-Important: My MP is an independent, non-government information service. It is not an app of the Parliament of Bangladesh, the Election Commission, the Cabinet Division or any government office, and it is not affiliated with any government body, political party or MP.
-
-Sources: Parliament of Bangladesh (https://www.parliament.gov.bd), Bangladesh Election Commission (https://www.ecs.gov.bd), Cabinet Division (https://cabinet.gov.bd). Some details such as results, education or party history come from published news and Wikipedia; each is cited in the app and at https://mymp.bd/sutro.
 
 Report an error, with a source: mymp.bangladesh@gmail.com
 ```
@@ -113,7 +122,7 @@ Report an error, with a source: mymp.bangladesh@gmail.com
 ## Release notes (bn-BD)
 
 ```
-প্রথম সংস্করণ: সংসদ সদস্য, মন্ত্রিসভা, নির্বাচনী ফল ও সংবাদ।
+প্রথম সংস্করণ: সংসদ সদস্য, মন্ত্রিসভা, নির্বাচনী ফল ও সংবাদ। তথ্যের প্রতিটি সূত্র অ্যাপেই লিংকসহ দেওয়া।
 ```
 
 ## যা এড়িয়ে চলবেন

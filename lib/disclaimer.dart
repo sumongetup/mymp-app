@@ -7,27 +7,159 @@ import 'theme.dart';
 /// Google Play asks an app that shows government information to say, in the
 /// app and in its listing, that it does not represent the government, and to
 /// name where the information comes from. This file is that statement, in one
-/// place, and the official sources it points to.
+/// place.
+///
+/// Every source is listed by name with a working link, and with what it
+/// supplies. The first submission was rejected on 21 September 2026
+/// ("Insufficient Sources Provided") because the wording then said results came
+/// "from published results" and named no one: a phrase that admits to more
+/// sources than it lists is what the Misleading Claims policy objects to.
 
 const kNotOfficial =
     'আমার এমপি একটি স্বাধীন, বেসরকারি তথ্যসেবা। এটি বাংলাদেশ জাতীয় সংসদ, নির্বাচন কমিশন, মন্ত্রিপরিষদ বিভাগ '
-    'বা সরকারের কোনো দপ্তরের অ্যাপ নয়, কোনো সরকারি প্রতিষ্ঠানের সঙ্গে যুক্তও নয়।';
+    'বা সরকারের কোনো দপ্তরের অ্যাপ নয়, কোনো সরকারি প্রতিষ্ঠানের প্রতিনিধিত্ব করে না এবং কারও সঙ্গে যুক্তও নয়।';
 
-const kSourcesLine =
-    'সংসদ সদস্যদের তথ্য নেওয়া হয় জাতীয় সংসদের ওয়েবসাইট থেকে, নির্বাচনী ফল প্রকাশিত ফলাফল থেকে, আর মন্ত্রিসভার তালিকা '
-    'মন্ত্রিপরিষদ বিভাগের ওয়েবসাইট থেকে। প্রতিটি সদস্যের পাতায় তথ্যের সূত্র দেওয়া আছে।';
+typedef InfoSource = ({String label, String what, String url});
 
-/// The official sites the information comes from, as the reader can check them.
-const kOfficialSources = <({String label, String url})>[
+/// The government sources, as the reader can check them.
+const kOfficialSources = <InfoSource>[
   (
     label: 'বাংলাদেশ জাতীয় সংসদ: parliament.gov.bd',
+    what:
+        'সংসদ সদস্যদের নাম, ছবি, আসন, দল, যোগাযোগ, সংসদীয় কমিটি, অধিবেশন ও সংসদ সচিবালয়ের প্রজ্ঞাপন',
     url: 'https://www.parliament.gov.bd',
   ),
-  (label: 'বাংলাদেশ নির্বাচন কমিশন: ecs.gov.bd', url: 'https://www.ecs.gov.bd'),
-  (label: 'মন্ত্রিপরিষদ বিভাগ: cabinet.gov.bd', url: 'https://cabinet.gov.bd'),
+  (
+    label: 'বাংলাদেশ নির্বাচন কমিশন: ecs.gov.bd',
+    what: 'নিবন্ধিত ভোটার ও ভোটকেন্দ্রের সংখ্যা',
+    url: 'https://www.ecs.gov.bd',
+  ),
+  (
+    label: 'মন্ত্রিপরিষদ বিভাগ: cabinet.gov.bd',
+    what: 'মন্ত্রী, প্রতিমন্ত্রী ও উপদেষ্টাদের তালিকা, কে কোন মন্ত্রণালয়ে',
+    url: 'https://cabinet.gov.bd',
+  ),
 ];
 
-/// The statement with the official sources as links, for the "আরও" tab.
+/// The sources that are not government offices. Each is also named where its
+/// information appears: under a seat's result, under a biography.
+const kOtherSources = <InfoSource>[
+  (
+    label: 'দ্য বিজনেস স্ট্যান্ডার্ড: tbsnews.net',
+    what: '২০২৬ সালের নির্বাচনের আসনভিত্তিক ভোটের ফল',
+    url: 'https://www.tbsnews.net',
+  ),
+  (
+    label: 'বাংলা উইকিপিডিয়া: bn.wikipedia.org',
+    what:
+        'ভোটের ফল মিলিয়ে দেখা, দলের ইতিহাস, কিছু সদস্যের শিক্ষা, জন্মস্থান ও জীবনী',
+    url: 'https://bn.wikipedia.org',
+  ),
+  (
+    label: 'ইংরেজি উইকিপিডিয়া: en.wikipedia.org',
+    what: 'কিছু সদস্যের শিক্ষা, জন্মস্থান ও জীবনী',
+    url: 'https://en.wikipedia.org',
+  ),
+];
+
+const kNewsLine =
+    'সংবাদ অংশের প্রতিটি শিরোনামের পাশে সংবাদমাধ্যমের নাম লেখা থাকে; চাপ দিলে সেই সংবাদমাধ্যমের নিজের সাইটে খোলে। '
+    'অ্যাপ নিজে কোনো সংবাদ লেখে না।';
+
+TextStyle _bn(double size, FontWeight weight, Color color, {double? height}) =>
+    TextStyle(
+      fontFamily: 'NotoSansBengali',
+      fontSize: size,
+      fontWeight: weight,
+      color: color,
+      height: height,
+    );
+
+class _SourceRow extends StatelessWidget {
+  const _SourceRow(this.source, {required this.icon});
+  final InfoSource source;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => openLink(context, source.url),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(icon, size: 17, color: AppColors.brand),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    source.label,
+                    style: _bn(13.5, FontWeight.w600, AppColors.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    source.what,
+                    style: _bn(12, FontWeight.w400, AppColors.muted, height: 1.45),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.open_in_new_rounded,
+                size: 16,
+                color: AppColors.muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _groupTitle(String text) => Padding(
+  padding: const EdgeInsets.fromLTRB(14, 10, 14, 2),
+  child: Text(text, style: _bn(12, FontWeight.w700, AppColors.muted)),
+);
+
+/// Every source, grouped, each one a link. Used by the card on the "আরও" tab,
+/// by the first-open notice and by the sheet the home screen's footnote opens.
+class SourceList extends StatelessWidget {
+  const SourceList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _groupTitle('সরকারি সূত্র'),
+        for (final s in kOfficialSources)
+          _SourceRow(s, icon: Icons.account_balance_outlined),
+        _groupTitle('অন্যান্য সূত্র'),
+        for (final s in kOtherSources)
+          _SourceRow(s, icon: Icons.menu_book_outlined),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+          child: Text(
+            kNewsLine,
+            style: _bn(12, FontWeight.w400, AppColors.muted, height: 1.5),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The statement with every source as a link, for the "আরও" tab.
 class DisclaimerCard extends StatelessWidget {
   const DisclaimerCard({super.key});
 
@@ -43,10 +175,10 @@ class DisclaimerCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             color: AppColors.warnSoft,
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.only(top: 2),
                   child: Icon(
                     Icons.verified_user_outlined,
@@ -54,115 +186,100 @@ class DisclaimerCard extends StatelessWidget {
                     color: AppColors.warn,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'স্বাধীন, বেসরকারি তথ্যসেবা। সংসদ, নির্বাচন কমিশন বা সরকারের কোনো দপ্তরের অ্যাপ নয়।',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansBengali',
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.ink,
-                      height: 1.5,
-                    ),
+                    'স্বাধীন, বেসরকারি তথ্যসেবা। সংসদ, নির্বাচন কমিশন বা সরকারের কোনো দপ্তরের অ্যাপ নয়, কোনো সরকারি প্রতিষ্ঠানের প্রতিনিধিত্ব করে না।',
+                    style: _bn(13.5, FontWeight.w600, AppColors.ink, height: 1.5),
                   ),
                 ),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 10, 14, 2),
-            child: Text(
-              'তথ্যের সরকারি সূত্র',
-              style: TextStyle(
-                fontFamily: 'NotoSansBengali',
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.muted,
-              ),
-            ),
-          ),
-          for (final s in kOfficialSources)
-            InkWell(
-              onTap: () => openLink(context, s.url),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 9,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.account_balance_outlined,
-                      size: 17,
-                      color: AppColors.brand,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        s.label,
-                        style: const TextStyle(
-                          fontFamily: 'NotoSansBengali',
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                    ),
-                    const Icon(
-                      Icons.open_in_new_rounded,
-                      size: 16,
-                      color: AppColors.muted,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 6),
+          const SourceList(),
         ],
       ),
     );
   }
 }
 
-/// Shown once, the first time the app opens, before anything else is read.
+/// The same statement and sources as a sheet, from anywhere in the app.
+Future<void> showSourcesSheet(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    backgroundColor: Colors.white,
+    builder: (context) => SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 6),
+              child: Text(
+                'তথ্যের সূত্র',
+                style: _bn(18, FontWeight.w700, AppColors.ink),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 4),
+              child: Text(
+                kNotOfficial,
+                style: _bn(13, FontWeight.w400, AppColors.ink, height: 1.55),
+              ),
+            ),
+            const SourceList(),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// Shown once, the first time the app opens, before anything else is read:
+/// what the app is not, and every source it draws on, each one a link.
 Future<void> showDisclaimerOnce(BuildContext context) async {
-  const key = 'not_official_notice_v1';
+  // v2: the sources are now listed one by one (Play review, 21 September 2026).
+  const key = 'not_official_notice_v2';
   final prefs = await SharedPreferences.getInstance();
   if (prefs.getBool(key) == true || !context.mounted) return;
   await showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (context) => AlertDialog(
-      title: const Text(
+      contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 0),
+      title: Text(
         'আমার এমপি সম্পর্কে',
-        style: TextStyle(
-          fontFamily: 'NotoSansBengali',
-          fontWeight: FontWeight.w700,
-        ),
+        style: _bn(19, FontWeight.w700, AppColors.ink),
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(kNotOfficial, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Text(kSourcesLine, style: Theme.of(context).textTheme.bodyMedium),
-          ],
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text(
+                  kNotOfficial,
+                  style: _bn(14, FontWeight.w400, AppColors.ink, height: 1.55),
+                ),
+              ),
+              const SizedBox(height: 4),
+              const SourceList(),
+            ],
+          ),
         ),
       ),
       actions: [
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppColors.brand),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text(
-            'বুঝেছি',
-            style: TextStyle(
-              fontFamily: 'NotoSansBengali',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          child: Text('বুঝেছি', style: _bn(14.5, FontWeight.w700, Colors.white)),
         ),
       ],
     ),

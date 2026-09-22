@@ -8,6 +8,7 @@ import '../loading.dart';
 import '../models.dart';
 import '../party_logo.dart';
 import '../search.dart';
+import '../disclaimer.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'leaders_strip.dart';
@@ -515,34 +516,40 @@ class _Footnote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSizes.pagePad,
-        18,
-        AppSizes.pagePad,
-        28,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Icon(
-              Icons.info_outline_rounded,
-              size: 16,
-              color: AppColors.muted,
+    // Tapping opens the full list of sources, one link each; the line itself
+    // names the three government ones so the statement stands on its own.
+    return InkWell(
+      onTap: () => showSourcesSheet(context),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSizes.pagePad,
+          18,
+          AppSizes.pagePad,
+          28,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: AppColors.muted,
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'আমার এমপি একটি স্বাধীন, বেসরকারি তথ্যসেবা; সরকারি অ্যাপ নয়। সদস্যদের তথ্য জাতীয় সংসদের ওয়েবসাইট থেকে নেওয়া।',
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(height: 1.5),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'আমার এমপি একটি স্বাধীন, বেসরকারি তথ্যসেবা; সরকারি অ্যাপ নয়। তথ্যের সূত্র: জাতীয় সংসদ (parliament.gov.bd), '
+                'নির্বাচন কমিশন (ecs.gov.bd), মন্ত্রিপরিষদ বিভাগ (cabinet.gov.bd), দ্য বিজনেস স্ট্যান্ডার্ড ও উইকিপিডিয়া। সব সূত্র দেখতে চাপুন।',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(height: 1.5),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
